@@ -11,15 +11,20 @@ data class WeatherResponse(
 )
 
 data class CurrentUnits(
-    val time: String,
-    val interval: String,
-    val is_day: String?
+    val temperature_2m: String,
+    val relative_humidity_2m: String,
+    val rain: String,
+    val showers: String,
+    val snowfall: String
 )
 
 data class Current(
     val time: String,
-    val interval: Double,
-    val is_day: Int
+    val temperature_2m: Double,
+    val relative_humidity_2m: Int,
+    val rain: Double,
+    val showers: Double,
+    val snowfall: Double
 )
 
 data class HourlyUnits(
