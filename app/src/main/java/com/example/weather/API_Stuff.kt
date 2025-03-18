@@ -12,7 +12,7 @@ interface WeatherResponseInterface{
         @Query("latitude") lat : Double,
         @Query("longitude") long : Double,
         @Query("hourly") hrly : String = "temperature_2m,relative_humidity_2m,rain,showers,snowfall",
-        @Query("current") curr : String = "temperature_2m,relative_humidity_2m,rain,showers,snowfall",
+        @Query("current") curr : String = "temperature_2m,relative_humidity_2m,rain,showers,snowfall,is_day,cloud_cover,wind_speed_10m,precipitation,pressure_msl,wind_direction_10m,apparent_temperature,surface_pressure,wind_gusts_10m",
         @Query("timezone") timezone: String = "auto"
     ) : Call<WeatherResponse>
 }
