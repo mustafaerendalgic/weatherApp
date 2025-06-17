@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">weather</string>
+    <string name="internettenEminOlun">İnternetinizin ve konumunuzun açık olduğundan emin olun</string>
+    <string name="tamam">Tamam</string>
+
 </resources>

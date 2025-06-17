@@ -3,4 +3,10 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="background_arc">#3d71c4</color>
+    <color name="text_color">#ffffff</color>
+    <color name="general_bg">#ffffff</color>
+    <color name="background_arc2">#c089fa</color>
+    <color name="design_background">#c7a5d6</color>
+    <color name="yazi_renk">#FFFFFF</color>
+    <color name="mor">#7c6fde</color>
 </resources>

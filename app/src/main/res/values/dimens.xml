@@ -1,0 +1,6 @@
+<resources>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="kenar">14dp</dimen>
+    <dimen name="kare">50dp</dimen>
+    <dimen name="karemargin">10dp</dimen>
+</resources>

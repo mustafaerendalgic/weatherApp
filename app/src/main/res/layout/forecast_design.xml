@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="18dp"
+    android:elevation="40dp"
+    android:layout_margin="20dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/arkapl"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:background="#7c6fde">
+        <!--#73b3d1 #a0cade #57a2bd "#7c6fde"-->
+
+        <ImageView
+            android:id="@+id/arkaplan"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:src="@drawable/a1"
+            android:alpha="0.25"
+
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tarih_forecast"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="85dp"
+            android:layout_marginStart="16dp"
+            android:autoSizeMaxTextSize="52dp"
+            android:autoSizeMinTextSize="28dp"
+            android:autoSizeTextType="uniform"
+            android:fontFamily="@font/annie"
+            android:maxLines="1"
+            android:text="30 Mart"
+            android:textAllCaps="true"
+            android:textColor="@color/yazi_renk"
+            android:textSize="52dp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@id/sicaklik_forecast"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/sicaklik_forecast"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="30 / 20"
+            android:textSize="28dp"
+            android:textStyle="bold"
+            android:textColor="@color/yazi_renk"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMaxTextSize="28dp"
+            android:maxLines="1"
+            android:fontFamily="@font/annie"
+            app:layout_constraintBottom_toTopOf="@id/hiss_sicaklik_forecast"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tarih_forecast" />
+
+        <TextView
+            android:id="@+id/hiss_sicaklik_forecast"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="40dp"
+            android:text="Hissedilen: 30 / 20"
+            android:textSize="28dp"
+            android:textColor="@color/yazi_renk"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMaxTextSize="28dp"
+            android:autoSizeMinTextSize="16dp"
+            android:fontFamily="@font/annie"
+            app:layout_constraintBottom_toBottomOf="@id/nem_forecast"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/sicaklik_forecast" />
+
+        <TextView
+            android:id="@+id/nem_forecast"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="70dp"
+            android:layout_marginStart="16dp"
+            android:autoSizeMaxTextSize="24dp"
+            android:autoSizeMinTextSize="16dp"
+            android:autoSizeTextType="uniform"
+            android:fontFamily="@font/annie"
+            android:maxLines="1"
+            android:text="TextView"
+            android:textColor="@color/yazi_renk"
+            android:textSize="24dp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@id/gunesli_vakitler"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/hiss_sicaklik_forecast" />
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/gunesli_vakitler"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/nem_forecast"
+            app:lottie_autoPlay="true"
+            app:lottie_fileName="gunesmini2.json"
+            app:lottie_loop="true" />
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/yagmurlu_vakitler"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/nem_forecast"
+            app:lottie_autoPlay="true"
+            app:lottie_fileName="rainmini.json"
+            app:lottie_loop="true" />
+
+        <TextView
+            android:id="@+id/gunes_aralik"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:text=""
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:textColor="@color/yazi_renk"
+            android:fontFamily="@font/annie"
+            app:layout_constraintBottom_toBottomOf="@+id/gunesli_vakitler"
+            app:layout_constraintEnd_toEndOf="@+id/yagmur_aralik"
+            app:layout_constraintStart_toEndOf="@id/gunesli_vakitler"
+            app:layout_constraintTop_toTopOf="@id/gunesli_vakitler" />
+
+        <TextView
+            android:id="@+id/yagmur_aralik"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="-16dp"
+            android:layout_marginEnd="16dp"
+            android:text="TextView"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:textColor="@color/yazi_renk"
+            android:fontFamily="@font/annie"
+            app:layout_constraintBottom_toBottomOf="@+id/gunesli_vakitler"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/gunesli_vakitler"
+            app:layout_constraintTop_toTopOf="@id/gunesli_vakitler" />
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>

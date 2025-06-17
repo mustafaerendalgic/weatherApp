@@ -63,5 +63,36 @@ data class Hourly(
     val relative_humidity_2m: List<Int>,
     val rain: List<Double>,
     val showers: List<Double>,
-    val snowfall: List<Double>
+    val snowfall: List<Double>,
+    val cloud_cover: List<Double>,
+    val apparent_temperature: List<Double>,
+    val wind_speed_10m: List<Double>,
+    val wind_direction_10m: List<Int>
 )
+
+data class hourly_list(
+    val time: String,
+    val temperature_2m: Int,
+    val relative_humidity_2m: Int,
+    val rain: Double,
+    val showers: Double,
+    val snowfall: Double,
+    val cloud_cover: Double,
+    val apparent_temperature: Int,
+    val wind_speed_10m: Double,
+    val wind_direction_10m: Int
+)
+
+data class DailyForecast(
+    val time: String,
+    val max_temp: String,
+    val min_temp: String,
+    val his_max_temp: String,
+    val his_min_temp: String,
+    val max_nem: String,
+    val min_nem: String,
+    val yagmur: String,
+    val gunes: String?
+    )
+
+
