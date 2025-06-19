@@ -111,6 +111,11 @@ class MainActivity : AppCompatActivity() {
         Glide.with(this).asGif().load(R.drawable.metre).into(findViewById<ImageView>(R.id.basincanimasyon))
 
 
+        val font = getDataFromSharedPref(this, "font_selected", "font_selected")
+        Adapter_hourly1.fontUpdate(font)
+        Adapter_hourly_detailed.fontUpdate(font)
+        AdapterForecast.fontUpdate(font)
+
 
         val settings = findViewById<ImageView>(R.id.ayarlar)
         settings.setOnClickListener {

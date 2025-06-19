@@ -109,7 +109,10 @@ class Adapter_hourly(private var sel_color : String, val ctx : Context, private 
         var fontid = getFontId(ctx, font)
         fontid?.let {
             for (tv in textViews){
-                tv.typeface = fontid
+                if(font == "annie")
+                    tv.setTypeface(fontid, Typeface.BOLD)
+                else
+                    tv.setTypeface(fontid, Typeface.NORMAL)
             }
         }
     }
@@ -170,7 +173,10 @@ class Adapter_hourly_detailed(private var sel_color: String, val ctx : Context, 
         var fontid = getFontId(ctx, font)
         fontid?.let {
             for (tv in textViews){
-                tv.typeface = fontid
+                if(font == "annie")
+                    tv.setTypeface(fontid, Typeface.BOLD)
+                else
+                    tv.setTypeface(fontid, Typeface.NORMAL)
             }
         }
     }
@@ -239,7 +245,10 @@ class AdapterForecast(private var color: String, val ctx: Context, private var f
         var fontid = getFontId(ctx, font)
         fontid?.let {
             for (tv in textViews){
-                tv.typeface = fontid
+                if(font == "annie")
+                    tv.setTypeface(fontid, Typeface.BOLD)
+                else
+                    tv.setTypeface(fontid, Typeface.NORMAL)
             }
         }
     }
@@ -282,6 +291,7 @@ class AdapterForecast(private var color: String, val ctx: Context, private var f
             holder.frc_gunesli.visibility = View.VISIBLE
             holder.gunes_aralik.visibility = View.VISIBLE
         }
+
         changeTheFont(holder)
     }
 

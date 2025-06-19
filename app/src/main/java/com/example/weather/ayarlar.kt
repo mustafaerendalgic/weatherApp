@@ -77,6 +77,19 @@ class ayarlar : AppCompatActivity() {
             "#b3db81",
             "#b3db81"
             )
+        val color = getColorFromSharedPref(this)
+        for (index in colors.indices){
+            if(colors[index] == color){
+                val colorImage = imageViews[index]
+                val scale = 1.2f
+                colorImage.animate().setDuration(200).scaleX(scale).scaleY(scale).start()
+            }
+            else{
+                val colorImage = imageViews[index]
+                val scale = 1f
+                colorImage.animate().setDuration(200).scaleX(scale).scaleY(scale).start()
+            }
+        }
 
         val fonts = listOf(
             findViewById<TextView>(R.id.nb),
@@ -142,6 +155,12 @@ class ayarlar : AppCompatActivity() {
         for (i in imageViews.indices){
             imageViews[i].setOnClickListener {
                 saveColorToSharedPref(this, colors[i])
+                imageViews[i].animate().setDuration(200).scaleX(1.3f).scaleY(1.3f).start()
+                for(a in imageViews.indices){
+                    if(a != i){
+                        imageViews[a].animate().setDuration(200).scaleX(1f).scaleY(1f).start()
+                    }
+                }
             }
         }
 
@@ -158,11 +177,20 @@ class ayarlar : AppCompatActivity() {
         )
 
         val gunesli_isim = listOf("gunes.json", "gunesmini.json", "girllaying.json", "gunesmini2.json")
-
+        var gunesli = getDataFromSharedPref(this, "gunesli_selected", "gunesli_selected")
+        if(gunesli == "empty")
+            gunesli = "girllaying.json"
         for (i in gunesli_gun_animasyonlari.indices) {
             val index = i
+            gunesli_gun_animasyonlari[i].alpha = if(gunesli_isim[i] == gunesli)1.0f else 0.4f
             gunesli_gun_animasyonlari[i].setOnClickListener {
                 saveDataToSharedPRef(this, "gunesli_shared", "gunesli_data", gunesli_isim[index])
+                gunesli_gun_animasyonlari[i].animate().alpha(1.0f).setDuration(400).start()
+                for(a in gunesli_gun_animasyonlari.indices){
+                    if(a != i){
+                        gunesli_gun_animasyonlari[a].animate().alpha(0.6f).setDuration(200).start()
+                    }
+                }
             }
         }
 
@@ -174,10 +202,21 @@ class ayarlar : AppCompatActivity() {
         )
 
         val yagmurlu_isim = listOf("rainmini.json", "yagmur.json", "yagmurkadin2.json")
+        var yagmurlu = getDataFromSharedPref(this, "yagmurlu_selected", "yagmurlu_selected")
+        if (yagmurlu == "empty") yagmurlu = "yagmur.json"
 
-        for (i in yagmurlu_gun_animasyonlari.indices){
-            yagmurlu_gun_animasyonlari[i].setOnClickListener{
-                saveDataToSharedPRef(this, "yagmurlu_shared", "yagmurlu_data", yagmurlu_isim[i])
+        for (i in yagmurlu_gun_animasyonlari.indices) {
+            val index = i
+            yagmurlu_gun_animasyonlari[i].alpha = if (yagmurlu_isim[i] == yagmurlu) 1.0f else 0.4f
+
+            yagmurlu_gun_animasyonlari[i].setOnClickListener {
+                saveDataToSharedPRef(this, "yagmurlu_selected", "yagmurlu_selected", yagmurlu_isim[index])
+                yagmurlu_gun_animasyonlari[i].animate().alpha(1.0f).setDuration(400).start()
+                for (a in yagmurlu_gun_animasyonlari.indices) {
+                    if (a != i) {
+                        yagmurlu_gun_animasyonlari[a].animate().alpha(0.6f).setDuration(200).start()
+                    }
+                }
             }
         }
 
@@ -189,14 +228,23 @@ class ayarlar : AppCompatActivity() {
         )
 
         val bulutlu_isim = listOf("bulutlu.json", "bulutlu2.json", "bulutmini.json", "gokkusagi.json")
+        var bulutlu = getDataFromSharedPref(this, "bulutlu_selected", "bulutlu_selected")
+        if (bulutlu == "empty") bulutlu = "gokkusagi.json"
 
-        for (i in bulutlu_gun_animasyonlari.indices){
-            bulutlu_gun_animasyonlari[i].setOnClickListener{
-                saveDataToSharedPRef(this, "bulutlu_shared", "bulutlu_data", bulutlu_isim[i])
+        for (i in bulutlu_gun_animasyonlari.indices) {
+            val index = i
+            bulutlu_gun_animasyonlari[i].alpha = if (bulutlu_isim[i] == bulutlu) 1.0f else 0.4f
+
+            bulutlu_gun_animasyonlari[i].setOnClickListener {
+                saveDataToSharedPRef(this, "bulutlu_selected", "bulutlu_selected", bulutlu_isim[index])
+                bulutlu_gun_animasyonlari[i].animate().alpha(1.0f).setDuration(400).start()
+                for (a in bulutlu_gun_animasyonlari.indices) {
+                    if (a != i) {
+                        bulutlu_gun_animasyonlari[a].animate().alpha(0.6f).setDuration(200).start()
+                    }
+                }
             }
         }
-
-
 
     }
 
