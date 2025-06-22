@@ -18,9 +18,11 @@ A customizable Android weather application built with **Kotlin**, providing real
 
 ## Screenshots
 
-![Main Screen](https://github.com/user-attachments/assets/df90f1f6-6b21-4523-837a-de8b5cab7b6c)
-![Chart Screen](https://github.com/user-attachments/assets/bd19f316-90e8-46af-bdc2-649b0e02dd1a)
-![Settings](https://github.com/user-attachments/assets/0a5622a8-0057-4250-ad47-3f6481c21278)
+<p float="left">
+  <img src="https://github.com/user-attachments/assets/df90f1f6-6b21-4523-837a-de8b5cab7b6c" width="180" />
+  <img src="https://github.com/user-attachments/assets/bd19f316-90e8-46af-bdc2-649b0e02dd1a" width="180" />
+  <img src="https://github.com/user-attachments/assets/0a5622a8-0057-4250-ad47-3f6481c21278" width="180" />
+</p>
 
 
 ## Technologies Used
