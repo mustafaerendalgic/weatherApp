@@ -7,23 +7,15 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Geocoder
-import android.location.Location
-import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import android.net.SocketKeepalive
 import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import android.view.animation.AccelerateDecelerateInterpolator
-import android.view.animation.AccelerateInterpolator
-import android.view.animation.AnticipateInterpolator
 import android.view.animation.AnticipateOvershootInterpolator
-import android.view.animation.BounceInterpolator
-import android.view.animation.DecelerateInterpolator
 import android.view.animation.OvershootInterpolator
 import android.widget.ImageView
 import android.widget.Switch
@@ -36,51 +28,43 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.customview.widget.ViewDragHelper.Callback
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.airbnb.lottie.LottieAnimationView
 import com.bumptech.glide.Glide
+import com.example.weather.UI.AdapterForecast
+import com.example.weather.UI.AdapterHourly
+import com.example.weather.UI.AdapterHourlyDetailed
+import com.example.weather.data.DailyForecast
+import com.example.weather.data.ForecastChart
+import com.example.weather.data.HourlyList
+import com.example.weather.data.WeatherResponse
+import com.example.weather.retrofit.RetrApi
 import com.example.weather.util.getLocFromSharedPref
-import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Response
-import retrofit2.http.GET
-import retrofit2.http.Query
 import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Locale
 import com.example.weather.util.*
-import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.Legend
-import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
-import com.github.mikephil.charting.data.CombinedData
-import com.github.mikephil.charting.data.DataSet
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
-import java.security.KeyStore
 
 class MainActivity : AppCompatActivity() {
     private var check = 0
@@ -90,8 +74,8 @@ class MainActivity : AppCompatActivity() {
     private var device_latitude : Double? = null
     private var device_longitude : Double? = null
     private var isRvAttached = false
-    private var Adapter_hourly1 = Adapter_hourly("#7c6fde", this, "annie")
-    private var Adapter_hourly_detailed = Adapter_hourly_detailed("#7c6fde", this, "annie")
+    private var Adapter_hourly1 = AdapterHourly("#7c6fde", this, "annie")
+    private var Adapter_hourly_detailed = AdapterHourlyDetailed("#7c6fde", this, "annie")
 
     private var AdapterForecast = AdapterForecast("#7c6fde", this, "annie")
     private var is_forecast_adapter_att = false
@@ -752,7 +736,7 @@ class MainActivity : AppCompatActivity() {
         return formatter.format(calendar.time)
     }
 
-    fun findMaxMin(list : List<hourly_list>) : Pair<Int?, Int?>{
+    fun findMaxMin(list : List<HourlyList>) : Pair<Int?, Int?>{
         var max : Int? = null
         var min : Int? = null
         for (i in list){
@@ -914,7 +898,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun RV_set_up_hourly(adapter : Adapter_hourly, list : List<hourly_list>){
+    fun RV_set_up_hourly(adapter : AdapterHourly, list : List<HourlyList>){
         val layManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         adapter.submitList(list)
         val rv = findViewById<RecyclerView>(R.id.saatlik2)
@@ -926,7 +910,7 @@ class MainActivity : AppCompatActivity() {
             rv.addItemDecoration(Item_Decoration(35))
     }
 
-    fun RV_set_up_hourly_detailed(adapter : Adapter_hourly_detailed, list : List<hourly_list>){
+    fun RV_set_up_hourly_detailed(adapter : AdapterHourlyDetailed, list : List<HourlyList>){
         val layManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         val rv = findViewById<RecyclerView>(R.id.saatlik2)
         rv.adapter = null
@@ -939,8 +923,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun convertHourlyToList(weatherData: WeatherResponse, flag: Int = 0) : List<hourly_list>{
-        val list = ArrayList<hourly_list>()
+    fun convertHourlyToList(weatherData: WeatherResponse, flag: Int = 0) : List<HourlyList>{
+        val list = ArrayList<HourlyList>()
         var hour = LocalTime.now().hour //api 26
 
         if(flag == 1){
@@ -948,7 +932,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         for (i in hour until (hour+24)){
-            val a = hourly_list(weatherData.hourly.time[i], weatherData.hourly.temperature_2m[i].toInt(), weatherData.hourly.relative_humidity_2m[i], weatherData.hourly.rain[i], weatherData.hourly.showers[i], weatherData.hourly.snowfall[i], weatherData.hourly.cloud_cover[i], weatherData.hourly.apparent_temperature[i].toInt(), weatherData.hourly.wind_speed_10m[i], weatherData.hourly.wind_direction_10m[i])
+            val a = HourlyList(weatherData.hourly.time[i], weatherData.hourly.temperature_2m[i].toInt(), weatherData.hourly.relative_humidity_2m[i], weatherData.hourly.rain[i], weatherData.hourly.showers[i], weatherData.hourly.snowfall[i], weatherData.hourly.cloud_cover[i], weatherData.hourly.apparent_temperature[i].toInt(), weatherData.hourly.wind_speed_10m[i], weatherData.hourly.wind_direction_10m[i])
             list.add(a)
         }
 
