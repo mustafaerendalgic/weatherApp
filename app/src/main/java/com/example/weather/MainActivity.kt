@@ -801,7 +801,7 @@ class MainActivity : AppCompatActivity() {
         else if(weatherData.current.snowfall > 0){
             kar_animasyon
         }
-        else if (time >= 19 || time < 7){
+        locReqCode{
             gece_animasyon
         }
         else if (weatherData.current.cloud_cover > 90){
