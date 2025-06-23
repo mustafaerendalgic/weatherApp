@@ -382,11 +382,10 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 chartBar.axisLeft.apply {
-
-                    setDrawAxisLine(true)
+                    /*setDrawAxisLine(true)
                     axisLineWidth = 2f
                     textSize = 10f
-                    typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                    typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)*/
                     //granularity = 2f
                 }
 
@@ -535,6 +534,7 @@ class MainActivity : AppCompatActivity() {
             chart.setVisibleXRangeMaximum(8f)
             chart.moveViewToX(0f)
 
+
             chartHum.setDragEnabled(true)
             chartHum.setScaleEnabled(false)
             chartHum.setVisibleXRangeMaximum(8f)
@@ -554,13 +554,35 @@ class MainActivity : AppCompatActivity() {
 
             val list = convertHourlyToListForecastChart(weatherData)
 
-            val entriesMax = list.mapIndexedNotNull { int, item -> Entry(int.toFloat(), item.max_temp.toFloat()) }
-            val entriesMin = list.mapIndexedNotNull { int, item -> Entry(int.toFloat(), item.min_temp.toFloat()) }
+            val rainIcon = ContextCompat.getDrawable(this@MainActivity, R.drawable.rain)
+            val sunIcon = ContextCompat.getDrawable(this@MainActivity, R.drawable.sun_74)
+            val offset = 0.1f
+            val entriesMax = list.mapIndexedNotNull { int, item ->
+                val entry = Entry(int.toFloat() + offset, item.max_temp.toFloat())
+                entry
+            }
+
+            val entriesSun = list.mapIndexedNotNull { int, item ->
+                val entry = Entry(int.toFloat() + offset, (item.max_temp.toFloat() + item.min_temp.toFloat()) / 2f)
+                entry.icon = if (item.yagmur == 1) rainIcon else sunIcon
+                entry
+            }
+
+            val entriesMin = list.mapIndexedNotNull { int, item -> Entry(int.toFloat() + offset, item.min_temp.toFloat()) }
 
             val days = list.map{it.time.substringAfter(",").trim()}
 
             val dataMax = LineDataSet(entriesMax, "Sıcaklık Max (°C)")
             val dataMin = LineDataSet(entriesMin, "Sıcaklık Min (°C)")
+            val dataSun = LineDataSet(entriesSun, "")
+
+            dataSun.apply {
+                setDrawValues(false)
+                setDrawCircles(false)
+                setDrawFilled(false)
+                color = Color.parseColor("#ffffff")
+                setDrawIcons(true)
+            }
 
             val valueFormatter1 = object : ValueFormatter(){
                 override fun getPointLabel(entry: Entry?): String? {
@@ -615,7 +637,13 @@ class MainActivity : AppCompatActivity() {
                 textSize = 12f
             }
 
-            chartForec.axisLeft.axisMaximum = maxOf(entriesMax.maxOf { it.y }) + 4f
+            chart.axisLeft.axisMaximum = entriesMax.maxOf { it.y } + 4f
+            chartForec.setExtraOffsets(30f, 0f, 0f, 10f)
+            chartForec.isHighlightPerTapEnabled = false
+
+            chartForec.axisLeft.apply{
+                isEnabled = false
+            }
 
             chartForec.extraTopOffset = 10f
             chartForec.setScaleEnabled(false)
@@ -635,6 +663,7 @@ class MainActivity : AppCompatActivity() {
             val dataTemp = LineData()
             dataTemp.addDataSet(dataMax)
             dataTemp.addDataSet(dataMin)
+            dataTemp.addDataSet(dataSun)
 
             chartForec.data = dataTemp
 
@@ -1017,7 +1046,7 @@ class MainActivity : AppCompatActivity() {
             val rain_intervals = getRainIntervals(time, rain)
 
             if((i + 1) % 24 == 0){
-                a = ForecastChart(formatDate(weatherData.hourly.time[previousBound].substring(0,10)), max_temp.toString(), min_temp.toString(), if(rain_intervals != null) 1 else 0)
+                a = ForecastChart(formatDate(weatherData.hourly.time[previousBound].substring(0,10)), max_temp.toString(), min_temp.toString(), if(rain_intervals.isNotEmpty()) 1 else 0)
                 previousBound = i+1
                 list.add(a)
                 temp.clear()
