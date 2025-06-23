@@ -177,7 +177,7 @@ class ayarlar : AppCompatActivity() {
         )
 
         val gunesli_isim = listOf("gunes.json", "gunesmini.json", "girllaying.json", "gunesmini2.json")
-        var gunesli = getDataFromSharedPref(this, "gunesli_selected", "gunesli_selected")
+        var gunesli = getDataFromSharedPref(this, "gunesli_shared", "gunesli_data")
         if(gunesli == "empty")
             gunesli = "girllaying.json"
         for (i in gunesli_gun_animasyonlari.indices) {
@@ -202,7 +202,7 @@ class ayarlar : AppCompatActivity() {
         )
 
         val yagmurlu_isim = listOf("rainmini.json", "yagmur.json", "yagmurkadin2.json")
-        var yagmurlu = getDataFromSharedPref(this, "yagmurlu_selected", "yagmurlu_selected")
+        var yagmurlu = getDataFromSharedPref(this, "yagmurlu_shared", "yagmurlu_data")
         if (yagmurlu == "empty") yagmurlu = "yagmur.json"
 
         for (i in yagmurlu_gun_animasyonlari.indices) {
@@ -210,7 +210,7 @@ class ayarlar : AppCompatActivity() {
             yagmurlu_gun_animasyonlari[i].alpha = if (yagmurlu_isim[i] == yagmurlu) 1.0f else 0.4f
 
             yagmurlu_gun_animasyonlari[i].setOnClickListener {
-                saveDataToSharedPRef(this, "yagmurlu_selected", "yagmurlu_selected", yagmurlu_isim[index])
+                saveDataToSharedPRef(this, "yagmurlu_shared", "yagmurlu_data", yagmurlu_isim[index])
                 yagmurlu_gun_animasyonlari[i].animate().alpha(1.0f).setDuration(400).start()
                 for (a in yagmurlu_gun_animasyonlari.indices) {
                     if (a != i) {
@@ -228,7 +228,7 @@ class ayarlar : AppCompatActivity() {
         )
 
         val bulutlu_isim = listOf("bulutlu.json", "bulutlu2.json", "bulutmini.json", "gokkusagi.json")
-        var bulutlu = getDataFromSharedPref(this, "bulutlu_selected", "bulutlu_selected")
+        var bulutlu = getDataFromSharedPref(this, "bulutlu_shared", "bulutlu_data")
         if (bulutlu == "empty") bulutlu = "gokkusagi.json"
 
         for (i in bulutlu_gun_animasyonlari.indices) {
@@ -236,7 +236,7 @@ class ayarlar : AppCompatActivity() {
             bulutlu_gun_animasyonlari[i].alpha = if (bulutlu_isim[i] == bulutlu) 1.0f else 0.4f
 
             bulutlu_gun_animasyonlari[i].setOnClickListener {
-                saveDataToSharedPRef(this, "bulutlu_selected", "bulutlu_selected", bulutlu_isim[index])
+                saveDataToSharedPRef(this, "bulutlu_shared", "bulutlu_data", bulutlu_isim[index])
                 bulutlu_gun_animasyonlari[i].animate().alpha(1.0f).setDuration(400).start()
                 for (a in bulutlu_gun_animasyonlari.indices) {
                     if (a != i) {
@@ -246,6 +246,8 @@ class ayarlar : AppCompatActivity() {
             }
         }
 
+
+
     }
 
     fun Return_value(){
@@ -254,6 +256,10 @@ class ayarlar : AppCompatActivity() {
         result.putExtra("ayar", selectedValue)
         setResult(Activity.RESULT_OK, result)
         finish()
+    }
+
+    override fun onBackPressed() {
+        Return_value()
     }
 
 }

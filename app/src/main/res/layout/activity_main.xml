@@ -105,7 +105,7 @@
                 app:layout_constraintTop_toBottomOf="@id/derece" />
 
             <TextView
-                android:id="@+id/saatlikdurum"
+                android:id="@+id/saatlikdurum2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -113,20 +113,104 @@
                 android:layout_marginBottom="8dp"
                 android:text="Önümüzdeki 24 Saatin Raporu"
                 android:textSize="24dp"
+                android:fontFamily="@font/nb"
                 android:textStyle="bold"
-                app:layout_constraintBottom_toTopOf="@id/saatlik"
+                app:layout_constraintBottom_toTopOf="@id/saatlikdurum"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/durum4" />
 
-            <androidx.recyclerview.widget.RecyclerView
+            <TextView
+                android:id="@+id/saatlikdurum"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:text="Grafik olarak göster"
+                android:textSize="20dp"
+                
+                android:fontFamily="@font/nb"
+                app:layout_constraintBottom_toTopOf="@id/saatlik"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/saatlikdurum2" />
+
+            <Switch
+                android:id="@+id/grafikSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/saatlikdurum"
+                app:layout_constraintBottom_toBottomOf="@id/saatlikdurum"
+                />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/saatlik"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:layout_constraintBottom_toTopOf="@id/forecastText"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/saatlikdurum" />
+                android:layout_marginHorizontal="4dp"
+                app:layout_constraintTop_toBottomOf="@+id/saatlikdurum"
+                app:layout_constraintBottom_toTopOf="@id/forecastText">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/saatlikChart"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+
+
+                    <com.github.mikephil.charting.charts.LineChart
+                        android:id="@+id/saatlikHumChartLine"
+                        android:layout_width="0dp"
+                        android:layout_height="200dp"
+                        android:visibility="visible"
+                        android:layout_marginTop="32dp"
+
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/saatlikChartLine" />
+
+                    <com.github.mikephil.charting.charts.LineChart
+                        android:id="@+id/saatlikChartLine"
+                        android:layout_width="0dp"
+                        android:layout_height="200dp"
+
+                        android:visibility="visible"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.github.mikephil.charting.charts.BarChart
+                        android:id="@+id/saatlikChartBar"
+                        android:layout_width="0dp"
+                        android:layout_height="200dp"
+                        android:layout_marginTop="32dp"
+                        android:visibility="visible"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/saatlikHumChartLine" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/saatlik2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:visibility="visible"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
 
             <TextView
                 android:id="@+id/forecastText"
@@ -136,8 +220,31 @@
                 android:text="Önümüzdeki 7 Günün Raporu"
                 android:textSize="24dp"
                 android:textStyle="bold"
+                android:fontFamily="@font/nb"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/saatlik" />
+
+            <TextView
+                android:id="@+id/grafikForecast"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:text="Grafik olarak göster"
+                android:textSize="20dp"
+                android:fontFamily="@font/nb"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/forecastText" />
+
+            <Switch
+                android:id="@+id/grafikSwitchForecast"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                app:layout_constraintBottom_toBottomOf="@id/grafikForecast"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/forecastText"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/forecast"
@@ -149,8 +256,21 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/forecastText"
+                app:layout_constraintTop_toBottomOf="@id/grafikForecast"
                 app:layout_constraintVertical_bias="0.0" />
+            
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/forecastLineChart"
+                android:layout_width="0dp"
+                android:layout_height="300dp"
+                android:visibility="gone"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="200dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/grafikSwitchForecast"
+                />
 
             <LinearLayout
                 android:id="@+id/durum"
@@ -635,6 +755,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/arcMain"
                 app:srcCompat="@drawable/settings" />
+
+
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

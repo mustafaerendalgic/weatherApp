@@ -26,13 +26,16 @@ import android.view.animation.BounceInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.OvershootInterpolator
 import android.widget.ImageView
+import android.widget.Switch
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.customview.widget.ViewDragHelper.Callback
@@ -62,6 +65,22 @@ import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Locale
 import com.example.weather.util.*
+import com.github.mikephil.charting.animation.Easing
+import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.Legend
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.data.CombinedData
+import com.github.mikephil.charting.data.DataSet
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.github.mikephil.charting.formatter.ValueFormatter
+import java.security.KeyStore
 
 class MainActivity : AppCompatActivity() {
     private var check = 0
@@ -93,12 +112,12 @@ class MainActivity : AppCompatActivity() {
     private var pickedFont = "annie"
     private var previousFont = "annie"
 
+    private var internetAlertCheck = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-
-        /*val apiurl = "https://api.open-meteo.com/v1/forecast?latitude=36.9862&longitude=35.3253&hourly=temperature_2m,relative_humidity_2m,rain,showers,snowfall&current=is_day"*/
 
         checkLocPerm()
 
@@ -111,7 +130,106 @@ class MainActivity : AppCompatActivity() {
         Glide.with(this).asGif().load(R.drawable.metre).into(findViewById<ImageView>(R.id.basincanimasyon))
 
 
-        val font = getDataFromSharedPref(this, "font_selected", "font_selected")
+        var chart = findViewById<ConstraintLayout>(R.id.saatlikChart)
+        val chartForecast = findViewById<LineChart>(R.id.forecastLineChart)
+        val grafikSwitch = findViewById<Switch>(R.id.grafikSwitch)
+        val grafikswitchForecast = findViewById<Switch>(R.id.grafikSwitchForecast)
+        val switch_state = getDataFromSharedPref(this, "switch_state", "switch_state") ?: "0"
+        val forecast_switch_state = getDataFromSharedPref(this, "forecast_switch_state", "switch_state") ?: "0"
+        val rv = findViewById<RecyclerView>(R.id.saatlik2)
+        val rv_forecast = findViewById<RecyclerView>(R.id.forecast)
+
+        grafikswitchForecast.setOnClickListener {
+
+            if(grafikswitchForecast.isChecked == false) {
+                chartForecast.animate().setDuration(1000).translationX(-resources.displayMetrics.widthPixels.toFloat()).setInterpolator(
+                    AnticipateOvershootInterpolator()).withEndAction {
+                    rv_forecast.translationX = resources.displayMetrics.widthPixels.toFloat()
+                    rv_forecast.visibility = View.VISIBLE
+                    rv_forecast.animate().translationX(0f).setDuration(1000).setInterpolator(
+                        AnticipateOvershootInterpolator()).start()
+                    chartForecast.visibility = View.GONE
+                }.start()
+
+                saveDataToSharedPRef(this, "forecast_switch_state", "switch_state", "false")
+            }
+            else{
+                rv_forecast.animate().setDuration(1000).translationX(-resources.displayMetrics.widthPixels.toFloat()).setInterpolator(
+                    AnticipateOvershootInterpolator()).withEndAction {
+                    rv_forecast.visibility = View.GONE
+                    chartForecast.translationX = resources.displayMetrics.widthPixels.toFloat()
+                    chartForecast.visibility = View.VISIBLE
+                    chartForecast.animate().translationX(0f).setDuration(1000).setInterpolator(
+                        AnticipateOvershootInterpolator()).withEndAction {
+
+                    }.start()
+
+                }.start()
+
+                saveDataToSharedPRef(this, "forecast_switch_state", "switch_state", "true")
+            }
+
+        }
+
+        grafikSwitch.setOnClickListener {
+
+            if(grafikSwitch.isChecked == false) {
+                chart.animate().setDuration(1000).translationX(-resources.displayMetrics.widthPixels.toFloat()).setInterpolator(
+                    AnticipateOvershootInterpolator()).withEndAction {
+                    rv.translationX = resources.displayMetrics.widthPixels.toFloat()
+                    rv.visibility = View.VISIBLE
+                    rv.animate().translationX(0f).setDuration(1000).setInterpolator(
+                        AnticipateOvershootInterpolator()).start()
+                    chart.visibility = View.GONE
+                }.start()
+
+                saveDataToSharedPRef(this, "switch_state", "switch_state", "false")
+            }
+            else{
+                rv.animate().setDuration(1000).translationX(-resources.displayMetrics.widthPixels.toFloat()).setInterpolator(
+                    AnticipateOvershootInterpolator()).withEndAction {
+                    rv.visibility = View.GONE
+                    chart.translationX = resources.displayMetrics.widthPixels.toFloat()
+                    chart.visibility = View.VISIBLE
+                    chart.animate().translationX(0f).setDuration(1000).setInterpolator(
+                        AnticipateOvershootInterpolator()).withEndAction {
+
+                    }.start()
+
+                }.start()
+
+                saveDataToSharedPRef(this, "switch_state", "switch_state", "true")
+            }
+
+        }
+
+        if(switch_state == "false") {
+            grafikSwitch.isChecked = false
+            chart.visibility = View.GONE
+            rv.visibility = View.VISIBLE
+
+        }
+        else{
+            grafikSwitch.isChecked = true
+            chart.visibility = View.VISIBLE
+            rv.visibility = View.GONE
+
+        }
+
+        if(forecast_switch_state == "false") {
+            grafikswitchForecast.isChecked = false
+            chartForecast.visibility = View.GONE
+            rv_forecast.visibility = View.VISIBLE
+
+        }
+        else{
+            grafikswitchForecast.isChecked = true
+            chartForecast.visibility = View.VISIBLE
+            rv_forecast.visibility = View.GONE
+
+        }
+
+        val font = getDataFromSharedPref(this, "selected_font", "selected_font")
         Adapter_hourly1.fontUpdate(font)
         Adapter_hourly_detailed.fontUpdate(font)
         AdapterForecast.fontUpdate(font)
@@ -133,9 +251,12 @@ class MainActivity : AppCompatActivity() {
                     }
                 })
             }
-            else{
-                customAlertDisplay(this)
-                refresh.isRefreshing = false
+            else {
+                if(internetAlertCheck == false) {
+                    customAlertDisplay(this)
+                    refresh.isRefreshing = false
+                    internetAlertCheck = true
+                }
             }
 
         }
@@ -162,6 +283,374 @@ class MainActivity : AppCompatActivity() {
         val list = convertHourlyToList(weatherData)
         val list2 = convertHourlyToList(weatherData, 1)
 
+        var chart = findViewById<LineChart>(R.id.saatlikChartLine)
+        var chartBar = findViewById<BarChart>(R.id.saatlikChartBar)
+        var chartHum = findViewById<LineChart>(R.id.saatlikHumChartLine)
+
+        if(chart != null){
+            val entries = list.mapIndexedNotNull { int, list1 ->
+                Entry(int.toFloat(), list1.temperature_2m.toFloat())
+            }
+
+            val entriesApp = list.mapIndexedNotNull { int, list1 ->
+                Entry(int.toFloat(), list1.apparent_temperature.toFloat())
+            }
+            val detay = getDataFromSharedPref(this, "switch_detay", "switch_detay")
+
+            val dataSet = LineDataSet(entries, "Sıcaklık (°C)")
+
+            val combinedLineData = LineData()
+
+            val combinedBarData = BarData()
+
+            val valueformatter = object : ValueFormatter() {
+                override fun getPointLabel(entry: Entry?): String? {
+                    return if (entry?.x == 0f) "" else "${entry?.y?.toInt()}°"
+                }
+            }
+
+            val valueformatterHum = object : ValueFormatter() {
+                override fun getPointLabel(entry: Entry?): String? {
+                    return if (entry?.x == 0f) "" else "${entry?.y?.toInt()}%"
+                }
+            }
+
+            val alpha = 80
+
+            dataSet.apply {
+                fillAlpha = alpha
+                color = Color.parseColor(getColorFromSharedPref(this@MainActivity) ?: "#aa000000")
+                lineWidth = 2f
+                mode = LineDataSet.Mode.CUBIC_BEZIER
+                setDrawCircles(false)
+                valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                valueTextColor = Color.parseColor("#aa000000")
+                valueFormatter = valueformatter
+                valueTextSize = 12f
+            }
+
+            val appDataSet = LineDataSet(entriesApp, "Hissedilen Sıcaklık (°C)").apply {
+                setDrawValues(false)
+                fillAlpha = alpha
+                color = Color.parseColor("#6ec29a")
+                lineWidth = 2f
+                mode = LineDataSet.Mode.CUBIC_BEZIER
+                setDrawCircles(false)
+                valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                valueTextColor = Color.parseColor("#aa000000")
+                valueFormatter = valueformatter
+                valueTextSize = 12f
+            }
+
+            if(detay == "1"){
+
+                chartBar.visibility = View.VISIBLE
+                chartHum.visibility = View.VISIBLE
+
+                val entriesHum = list.mapIndexedNotNull { int, list1 ->
+                    Entry(int.toFloat(), list1.relative_humidity_2m.toFloat())
+                }
+
+                val entriesWind = list.mapIndexedNotNull { int, list1 ->
+                    BarEntry(int.toFloat(), list1.wind_speed_10m.toFloat())
+                }
+
+                val ruzHizDataSet = BarDataSet(entriesWind, "Rüzgar Hızı (km/h)").apply {
+
+                    valueTextSize = 12f
+                    color = Color.parseColor("#6ec29a")
+                    valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                    valueTextColor = Color.parseColor("#aa000000")
+                    isHighlightEnabled = false
+                }
+
+                combinedBarData.barWidth = 0.4f
+
+                val nemDataSet = LineDataSet(entriesHum, "Nem (%)").apply {
+                    fillAlpha = alpha
+                    valueTextSize = 12f
+                    color = Color.parseColor("#6ec29a")
+                    lineWidth = 2f
+                    mode = LineDataSet.Mode.CUBIC_BEZIER
+                    setDrawCircles(false)
+                    valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                    valueTextColor = Color.parseColor("#aa000000")
+                    valueFormatter = valueformatterHum
+                    isHighlightEnabled = false
+                }
+
+                chartBar.xAxis.apply {
+                    axisLineColor = Color.parseColor(getColorFromSharedPref(this@MainActivity))
+                    axisLineWidth = 2f
+                    textSize = 10f
+                    typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                    //granularity = 3f
+                    isGranularityEnabled = true
+                    valueFormatter = IndexAxisValueFormatter(list.map { it.time.substringAfter("T") })
+                }
+
+                chartBar.axisLeft.apply {
+
+                    setDrawAxisLine(true)
+                    axisLineWidth = 2f
+                    textSize = 10f
+                    typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                    //granularity = 2f
+                }
+
+                chartBar.axisRight.setDrawGridLines(false)
+                chartBar.axisLeft.setDrawGridLines(false)
+                chartBar.xAxis.setDrawGridLines(false)
+
+                chartHum.xAxis.apply {
+                    axisLineColor = Color.parseColor(getColorFromSharedPref(this@MainActivity))
+                    axisLineWidth = 2f
+                    textSize = 10f
+                    typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                    //granularity = 2f
+                    isGranularityEnabled = true
+                    valueFormatter = IndexAxisValueFormatter(list.map { it.time.substringAfter("T") })
+                }
+
+                chartHum.axisLeft.apply {
+
+                    setDrawAxisLine(true)
+                    axisLineWidth = 2f
+                    textSize = 10f
+                    typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                    granularity = 2f
+                }
+
+                chartHum.axisRight.setDrawGridLines(false)
+                chartHum.axisLeft.setDrawGridLines(false)
+                chartHum.xAxis.setDrawGridLines(false)
+
+                chartHum.axisRight.setDrawAxisLine(false)
+                chartBar.axisRight.setDrawAxisLine(false)
+                chartHum.axisRight.setDrawLabels(false)
+                chartBar.axisRight.setDrawLabels(false)
+
+                chart.axisLeft.axisMaximum = maxOf(entries.maxOf { it.y }, entriesApp.maxOf { it.y }) + 6f
+                chartHum.axisLeft.axisMaximum = entriesHum.maxOf { it.y } + 10f
+                chartBar.axisLeft.axisMaximum = entriesWind.maxOf { it.y } + 4f
+
+                    chartHum.description.text = ""
+                chartBar.description.text = ""
+
+                val humData = LineData(nemDataSet)
+
+                chartHum.data = humData
+
+                combinedBarData.addDataSet(ruzHizDataSet)
+
+                chartBar.data = combinedBarData
+
+                chartBar.setDragEnabled(true)
+                chartBar.setScaleEnabled(false)
+                chartBar.setVisibleXRangeMaximum(8f)
+                chartBar.moveViewToX(-1f)
+
+                chartHum.setDragEnabled(true)
+                chartHum.setScaleEnabled(false)
+                chartHum.setVisibleXRangeMaximum(8f)
+                chartHum.moveViewToX(0f)
+
+
+
+                chartBar.data.notifyDataChanged()
+                chartBar.notifyDataSetChanged()
+                chartHum.notifyDataSetChanged()
+                chartBar.invalidate()
+                chartHum.invalidate()
+
+            }
+
+            else{
+                chartBar.visibility = View.GONE
+                chartHum.visibility = View.GONE
+            }
+
+            chart.xAxis.apply {
+                setDrawGridLines(false)
+                axisLineColor = Color.parseColor(getColorFromSharedPref(this@MainActivity))
+                axisLineWidth = 2f
+                textSize = 10f
+                typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                //granularity = 3f
+                isGranularityEnabled = true
+                valueFormatter = IndexAxisValueFormatter(list.map { it.time.substringAfter("T") })
+            }
+
+            chart.description.isEnabled = false
+
+            chart.axisLeft.apply {
+                axisLineWidth = 2f
+                textSize = 10f
+                setDrawGridLines(false)
+                typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                granularity = 3f
+
+            }
+
+            chart.legend.apply {
+                isEnabled = true
+                form = Legend.LegendForm.CIRCLE
+                formSize = 10f
+                textSize = 12f
+                typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                textColor = Color.parseColor("#aa000000")
+                verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+                horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
+                orientation = Legend.LegendOrientation.HORIZONTAL
+                setDrawInside(false)
+            }
+
+            chartHum.legend.apply {
+                isEnabled = true
+                form = Legend.LegendForm.CIRCLE
+                formSize = 10f
+                textSize = 12f
+                typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                textColor = Color.parseColor("#aa000000")
+                verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+                horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
+                orientation = Legend.LegendOrientation.HORIZONTAL
+                setDrawInside(false)
+            }
+
+            chartBar.legend.apply {
+                isEnabled = true
+                form = Legend.LegendForm.CIRCLE
+                formSize = 10f
+                textSize = 12f
+                typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                textColor = Color.parseColor("#aa000000")
+                verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+                horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
+                orientation = Legend.LegendOrientation.HORIZONTAL
+                setDrawInside(false)
+            }
+
+            chart.xAxis.setAvoidFirstLastClipping(true)
+
+            combinedLineData.addDataSet(dataSet)
+            combinedLineData.addDataSet(appDataSet)
+
+            chart.data = combinedLineData
+
+            chart.setDragEnabled(true)
+            chart.setScaleEnabled(false)
+            chart.setVisibleXRangeMaximum(8f)
+            chart.moveViewToX(0f)
+
+            chartHum.setDragEnabled(true)
+            chartHum.setScaleEnabled(false)
+            chartHum.setVisibleXRangeMaximum(8f)
+            chartHum.moveViewToX(0f)
+
+            chart.axisRight.isEnabled = false
+
+            chart.notifyDataSetChanged()
+
+            chart.invalidate()
+
+        }
+
+        val chartForec = findViewById<LineChart>(R.id.forecastLineChart)
+
+        if(chartForec != null){
+
+            val list = convertHourlyToListForecastChart(weatherData)
+
+            val entriesMax = list.mapIndexedNotNull { int, item -> Entry(int.toFloat(), item.max_temp.toFloat()) }
+            val entriesMin = list.mapIndexedNotNull { int, item -> Entry(int.toFloat(), item.min_temp.toFloat()) }
+
+            val days = list.map{it.time.substringAfter(",").trim()}
+
+            val dataMax = LineDataSet(entriesMax, "Sıcaklık Max (°C)")
+            val dataMin = LineDataSet(entriesMin, "Sıcaklık Min (°C)")
+
+            val valueFormatter1 = object : ValueFormatter(){
+                override fun getPointLabel(entry: Entry?): String? {
+                    return if (entry?.x == 0f) "" else "${entry?.y?.toInt()}°"
+                }
+            }
+
+            dataMax.apply {
+                valueTextSize = 12f
+                isHighlightEnabled = false
+                setDrawCircles(true)
+                setCircleColors(Color.parseColor(getColorFromSharedPref(this@MainActivity) ?: "#aa000000"))
+                lineWidth = 2f
+                circleSize = 4f
+                valueTextColor = Color.parseColor("#aa000000")
+                valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                color = Color.parseColor(getColorFromSharedPref(this@MainActivity) ?: "#aa000000")
+                valueFormatter = valueFormatter1
+            }
+
+            dataMin.apply {
+                valueTextSize = 12f
+                isHighlightEnabled = false
+                setDrawCircles(true)
+                setCircleColors(Color.parseColor("#aa000000"))
+                lineWidth = 2f
+                circleSize = 4f
+                valueTextColor = Color.parseColor("#aa000000")
+                valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                color = Color.parseColor("#77000000")
+                valueFormatter = valueFormatter1
+            }
+
+            chartForec.description.text = ""
+            chartForec.legend.apply{
+                isEnabled = true
+                form = Legend.LegendForm.CIRCLE
+                formSize = 10f
+                textSize = 12f
+                typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                textColor = Color.parseColor("#aa000000")
+                verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+                horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
+                orientation = Legend.LegendOrientation.HORIZONTAL
+                setDrawInside(false)
+            }
+
+            chartForec.xAxis.apply {
+                valueFormatter = IndexAxisValueFormatter(days)
+                typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                setDrawGridLines(false)
+                textSize = 12f
+            }
+
+            chartForec.axisLeft.axisMaximum = maxOf(entriesMax.maxOf { it.y }) + 4f
+
+            chartForec.extraTopOffset = 10f
+            chartForec.setScaleEnabled(false)
+            chartForec.setDragEnabled(true)
+            chartForec.setVisibleXRangeMaximum(3f)
+            chartForec.moveViewToX(0f)
+            chartForec.axisLeft.setDrawGridLines(false)
+            chartForec.xAxis.apply {
+                setDrawGridLines(false)
+                setDrawAxisLine(false)
+            }
+            chartForec.axisRight.apply {
+                isEnabled = false
+            }
+
+
+            val dataTemp = LineData()
+            dataTemp.addDataSet(dataMax)
+            dataTemp.addDataSet(dataMin)
+
+            chartForec.data = dataTemp
+
+            chartForec.notifyDataSetChanged()
+            chartForec.invalidate()
+
+        }
+
         if(!animationCheck){
             gun_animasyon = if(getDataFromSharedPref(this, "gunesli_shared", "gunesli_data") != "empty") getDataFromSharedPref(this, "gunesli_shared", "gunesli_data") else "girllaying.json"
             yagmur_animasyon = if(getDataFromSharedPref(this, "yagmurlu_shared", "yagmurlu_data") != "empty") getDataFromSharedPref(this, "yagmurlu_shared", "yagmurlu_data") else "yagmurkadin2.json"
@@ -172,23 +661,26 @@ class MainActivity : AppCompatActivity() {
         val switch_value = getDataFromSharedPref(this, "switch_detay", "switch_detay")
         switch_Detay = if(switch_value == "1" || switch_value == "0") switch_value else "0"
 
-        if (!isRvAttached || switch_Detay_previous != switch_Detay) {
-            switch_Detay_previous = switch_Detay
-            if(switch_Detay == "0") {
-                RV_set_up_hourly(Adapter_hourly1, list)
-                val tema_renk = getColorFromSharedPref(this)
-                if (tema_renk != null) {
-                    Adapter_hourly1.backGUpdate(tema_renk)
+        val rv = findViewById<RecyclerView>(R.id.saatlik2)
+
+        if (rv != null) {
+            if (!isRvAttached || switch_Detay_previous != switch_Detay ) {
+                switch_Detay_previous = switch_Detay
+                if (switch_Detay == "0") {
+                    RV_set_up_hourly(Adapter_hourly1, list)
+                    val tema_renk = getColorFromSharedPref(this)
+                    if (tema_renk != null) {
+                        Adapter_hourly1.backGUpdate(tema_renk)
+                    }
+                } else {
+                    RV_set_up_hourly_detailed(Adapter_hourly_detailed, list)
+                    val tema_renk = getColorFromSharedPref(this)
+                    if (tema_renk != null) {
+                        Adapter_hourly_detailed.backGUpdate(tema_renk)
+                    }
                 }
+                isRvAttached = true
             }
-            else{
-                RV_set_up_hourly_detailed(Adapter_hourly_detailed, list)
-                val tema_renk = getColorFromSharedPref(this)
-                if (tema_renk != null) {
-                    Adapter_hourly_detailed.backGUpdate(tema_renk)
-                }
-            }
-            isRvAttached = true
         }
 
 
@@ -375,7 +867,10 @@ class MainActivity : AppCompatActivity() {
                 }
                 override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
                     Log.e("API_ERROR", "Failed to fetch weather: ${t.message}")
-                    customAlertDisplay(this@MainActivity)
+                    if(internetAlertCheck == false) {
+                        customAlertDisplay(this@MainActivity)
+                        internetAlertCheck = true
+                    }
                     findViewById<SwipeRefreshLayout>(R.id.swipe).isRefreshing = false
                 }
             })
@@ -422,7 +917,7 @@ class MainActivity : AppCompatActivity() {
     fun RV_set_up_hourly(adapter : Adapter_hourly, list : List<hourly_list>){
         val layManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         adapter.submitList(list)
-        val rv = findViewById<RecyclerView>(R.id.saatlik)
+        val rv = findViewById<RecyclerView>(R.id.saatlik2)
         rv.adapter = null
         rv.adapter = adapter
         rv.layoutManager = layManager
@@ -433,7 +928,7 @@ class MainActivity : AppCompatActivity() {
 
     fun RV_set_up_hourly_detailed(adapter : Adapter_hourly_detailed, list : List<hourly_list>){
         val layManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        val rv = findViewById<RecyclerView>(R.id.saatlik)
+        val rv = findViewById<RecyclerView>(R.id.saatlik2)
         rv.adapter = null
         adapter.submitList(list)
         rv.adapter = adapter
@@ -503,8 +998,43 @@ class MainActivity : AppCompatActivity() {
                 time.clear()
             }
         }
+        return list
+    }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun convertHourlyToListForecastChart(weatherData: WeatherResponse) : List<ForecastChart>{
+        val list = ArrayList<ForecastChart>()
 
+        val temp = ArrayList<Double>()
+        val ap_temp = ArrayList<Double>()
+
+        val rain = ArrayList<Double>()
+        val time = ArrayList<String>()
+
+        var previousBound = 0
+        for (i in weatherData.hourly.time.indices){
+            var a: ForecastChart
+
+            temp.add(weatherData.hourly.temperature_2m[i])
+            ap_temp.add(weatherData.hourly.apparent_temperature[i])
+
+            rain.add(weatherData.hourly.rain[i] + weatherData.hourly.showers[i])
+            time.add(weatherData.hourly.time[i])
+
+            val max_temp = temp.max().toInt()
+            val min_temp = temp.min().toInt()
+            val rain_intervals = getRainIntervals(time, rain)
+
+            if((i + 1) % 24 == 0){
+                a = ForecastChart(formatDate(weatherData.hourly.time[previousBound].substring(0,10)), max_temp.toString(), min_temp.toString(), if(rain_intervals != null) 1 else 0)
+                previousBound = i+1
+                list.add(a)
+                temp.clear()
+                ap_temp.clear()
+                rain.clear()
+                time.clear()
+            }
+        }
         return list
     }
 
@@ -640,6 +1170,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
 
+
                 AdapterForecast.fontUpdate(selected_font)
                 Adapter_hourly1.fontUpdate(selected_font)
                 Adapter_hourly_detailed.fontUpdate(selected_font)
@@ -667,6 +1198,7 @@ class MainActivity : AppCompatActivity() {
         val view = LayoutInflater.from(context).inflate(R.layout.alert_dialog, null)
         val alert = AlertDialog.Builder(context).setView(view).create()
         view.findViewById<TextView>(R.id.tamam).setOnClickListener {
+            internetAlertCheck = true
             alert.dismiss()
         }
         alert.show()
