@@ -801,7 +801,7 @@ class MainActivity : AppCompatActivity() {
         else if(weatherData.current.snowfall > 0){
             kar_animasyon
         }
-        else if (time >= 19){
+        else if (time >= 19 || time < 7){
             gece_animasyon
         }
         else if (weatherData.current.cloud_cover > 90){
@@ -1125,7 +1125,6 @@ class MainActivity : AppCompatActivity() {
                 if(selected_gunesli == "empty"){
                     selected_gunesli = "girllaying.json"
                 }
-
 
                 if(currentState != selected_gunesli && currentState == gun_animasyon) {
                     saveDataToSharedPRef(this, "gunesli_shared", "gunesli_data", selected_gunesli)
