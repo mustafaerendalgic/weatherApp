@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
 import com.example.weather.R
 import com.example.weather.data.DailyForecast
-import com.example.weather.getFontId
+import com.example.weather.util.getFontId
 import com.example.weather.util.getFontId
 import com.example.weather.util.yagmur_hesap
 

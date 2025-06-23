@@ -21,6 +21,7 @@ import android.widget.ImageView
 import android.widget.Switch
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -54,6 +55,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Locale
 import com.example.weather.util.*
+import com.example.weather.viewmodel.WeatherViewModel
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.Legend
@@ -66,10 +68,13 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
 
+
+
 class MainActivity : AppCompatActivity() {
     private var check = 0
 
-    lateinit var  weatherData1 : WeatherResponse
+
+    private val viewModel : WeatherViewModel by viewModels()
 
     private var device_latitude : Double? = null
     private var device_longitude : Double? = null
@@ -97,6 +102,7 @@ class MainActivity : AppCompatActivity() {
     private var previousFont = "annie"
 
     private var internetAlertCheck = false
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -263,6 +269,8 @@ class MainActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun updateUI(weatherData : WeatherResponse) {
+
+        viewModel.setWeatherResponse(weatherData)
 
         val list = convertHourlyToList(weatherData)
         val list2 = convertHourlyToList(weatherData, 1)
@@ -844,7 +852,6 @@ class MainActivity : AppCompatActivity() {
                         val weatherData = response.body()
                         weatherData?.let {
                             updateUI(weatherData)
-                            weatherData1 = weatherData
                         }
                     }
                     findViewById<SwipeRefreshLayout>(R.id.swipe).isRefreshing = false

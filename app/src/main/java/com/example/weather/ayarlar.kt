@@ -23,6 +23,9 @@ import com.airbnb.lottie.LottieAnimationView
 import com.example.weather.databinding.ActivityAyarlarBinding
 import com.example.weather.util.*
 
+
+
+
 class ayarlar : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
 import com.example.weather.R
 import com.example.weather.data.HourlyList
-import com.example.weather.getFontId
+import com.example.weather.util.getFontId
 
 
 class ViewHolderHourly(item : View) : RecyclerView.ViewHolder(item){
