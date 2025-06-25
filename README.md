@@ -5,6 +5,7 @@ A customizable Android weather application built with **Kotlin**, providing real
 ## Features
 
 -  Get current weather and forecasts based on your location
+-  Intro that guides you through the app when app is launched for the first time
 -  Forecast for next 24 hours
 -  Forecast for next 7 days
 -  Line chart option for hourly forecast 
