@@ -4,17 +4,18 @@ A customizable Android weather application built with **Kotlin**, providing real
 
 ## Features
 
-- 🌍 Get current weather and forecasts based on your location
-- 📈 Line charts displaying:
+-  Get current weather and forecasts based on your location
+-  Line charts displaying besides Card type of viewing:
   - Temperature
   - Feels-like temperature
   - Humidity
   - Wind speed
-- 🌙 Day/night icons and background themes
-- ✨ Font and color customization for hourly data
-- 📍 Location detection via GPS (with permissions)
-- 🎨 Smooth line animations using MPAndroidChart
-- 🚀 Fast and modern Kotlin-based Android architecture
+-  Day/night icons and background themes you can customize
+-  Font and color customization for hourly data
+-  Location detection via GPS (with permissions)
+-  Smooth animations when switching views 
+-  Room database for offline display
+-  Optional detailed information about hourly weather that displays wind and humidity in hourly forecast section besides temperatures  
 
 ## Screenshots
 
