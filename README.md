@@ -38,6 +38,10 @@ A customizable Android weather application built with **Kotlin**, providing real
 - **Custom Fonts & Themes**
 - **Location Services (GPS)**
 - **Retrofit**
+- **MPChart**
+- **Hilt**
+- **TapTargetView**
+  
 
 ## Getting Started
 
