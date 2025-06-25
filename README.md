@@ -7,13 +7,7 @@ A customizable Android weather application built with **Kotlin**, providing real
 -  Get current weather and forecasts based on your location
 -  Forecast for next 24 hours
 -  Forecast for next 7 days
--  
--  Line chart option for hourly forecast that displays:
-  - Temperature
-  - Feels-like temperature
-  - Humidity
-  - Wind speed
-  
+-  Line chart option for hourly forecast 
 -  Line chart option for next 7 days
 -  Day/night icons and background themes you can customize
 -  Font and color customization for hourly data
