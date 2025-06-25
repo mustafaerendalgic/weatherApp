@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/islem"
+        style="@style/verifontu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="İşleminiz gerçekleşemedi..."
+        android:textSize="20dp"
+        android:layout_margin="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/fail"
+        android:layout_width="0dp"
+        android:layout_height="150dp"
+        app:lottie_loop="true"
+        app:lottie_fileName="fail.json"
+        app:lottie_autoPlay="true"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/islem" />
+
+    <TextView
+        android:id="@+id/internet"
+        style="@style/verifontu"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/internettenEminOlun"
+        android:textSize="16dp"
+        android:gravity="center"
+        android:layout_marginTop="-30dp"
+        android:layout_marginHorizontal="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fail" />
+
+    <TextView
+        android:id="@+id/tamam"
+        style="@style/verifontu"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="12dp"
+        android:layout_marginEnd="16dp"
+        android:gravity="center"
+        android:text="@string/tamam"
+        android:textColor="@color/mor"
+        android:textSize="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/internet" />
+</androidx.constraintlayout.widget.ConstraintLayout>

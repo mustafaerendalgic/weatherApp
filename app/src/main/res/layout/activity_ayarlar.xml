@@ -1,0 +1,575 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootLay"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".ayarlar">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/arc"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-20dp"
+            android:scaleType="fitXY"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/arc" />
+
+    <ImageView
+        android:id="@+id/backbutton"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="14dp"
+        app:layout_constraintBottom_toTopOf="@+id/textView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/baseline_arrow_back_24" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Ayarlar"
+        android:textSize="50dp"
+        android:textColor="@color/black"
+        style="@style/ayarlarfontu"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/arc" />
+
+        <ImageView
+            android:id="@+id/imageView888"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:scaleType="fitXY"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textView"
+            app:srcCompat="@drawable/line" />
+
+        <TextView
+            android:id="@+id/detaylirapor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="20dp"
+            android:text="Bugün için detaylı rapor"
+            android:textSize="20dp"
+            style="@style/ayarlarfontu"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/imageView888" />
+
+    <TextView
+        android:id="@+id/raporarkaplan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="20dp"
+        android:text="Rapor Tema Rengi"
+        android:textSize="25dp"
+        style="@style/ayarlarfontu"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/detaylirapor" />
+
+    <TextView
+        android:id="@+id/fontText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="20dp"
+        android:text="Rapor Fontu"
+        android:textSize="25dp"
+        style="@style/ayarlarfontu"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/raportemagrid" />
+
+    <GridLayout
+        android:id="@+id/fontGrid"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="20dp"
+        android:columnCount="3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fontText" >
+
+        <TextView
+            android:id="@+id/annie"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:gravity="center"
+            android:text="Abcd"
+            android:fontFamily="@font/annie"
+            android:textSize="45dp"/>
+
+        <TextView
+            android:id="@+id/zilla"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:gravity="center"
+            android:text="Abcd"
+            android:fontFamily="@font/zilla"
+            android:textSize="40dp"/>
+
+        <TextView
+            android:id="@+id/inter"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:gravity="center"
+            android:text="Abcd"
+            android:fontFamily="@font/inter"
+            android:textSize="40dp"/>
+
+        <TextView
+            android:id="@+id/single"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:gravity="center"
+            android:text="Abcd"
+            android:fontFamily="@font/single"
+            android:textSize="45dp"/>
+
+        <TextView
+            android:id="@+id/nb"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:gravity="center"
+            android:text="Abcd"
+            android:fontFamily="@font/nb"
+            android:textSize="40dp"/>
+
+        <TextView
+            android:id="@+id/indie"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:gravity="center"
+            android:text="Abcd"
+            android:fontFamily="@font/indie"
+            android:textSize="40dp"/>
+
+    </GridLayout>
+        
+    <TextView
+        android:id="@+id/gunesligun"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="20dp"
+        android:text="Güneşli Gün Animasyonu"
+        android:textSize="25dp"
+        style="@style/ayarlarfontu"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fontGrid" />
+
+    <ImageView
+        android:id="@+id/a8888"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:scaleType="fitXY"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/raportemagrid"
+        app:srcCompat="@drawable/line" />
+
+    <ImageView
+        android:id="@+id/a8888888"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:scaleType="fitXY"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fontGrid"
+        app:srcCompat="@drawable/line" />
+
+        <LinearLayout
+            android:id="@+id/guneslianimasyonlinear"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/gunesligun">
+
+            <GridLayout
+                android:id="@+id/gridLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:columnCount="2"
+                android:padding="8dp"
+                android:rowCount="2">
+
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/gunesli1"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_margin="8dp"
+                    app:lottie_autoPlay="true"
+                    app:lottie_fileName="gunes.json"
+                    app:lottie_loop="true" />
+
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/gunesli2"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_margin="8dp"
+                    android:paddingStart="16dp"
+                    app:lottie_autoPlay="true"
+                    app:lottie_fileName="gunesmini.json"
+                    app:lottie_loop="true" />
+
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/gunesli3"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_margin="8dp"
+                    app:lottie_autoPlay="true"
+                    app:lottie_fileName="girllaying.json"
+                    app:lottie_loop="true" />
+
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/gunesli4"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_margin="8dp"
+                    app:lottie_autoPlay="true"
+                    app:lottie_fileName="gunesmini2.json"
+                    app:lottie_loop="true" />
+
+            </GridLayout>
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/a88888"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:scaleType="fitXY"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/guneslianimasyonlinear"
+            app:srcCompat="@drawable/line" />
+
+        <TextView
+            android:id="@+id/bulutlugun"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="20dp"
+            android:text="Bulutlu Gün Animasyonu"
+            android:textSize="25dp"
+            style="@style/ayarlarfontu"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/a88888" />
+
+        <LinearLayout
+            android:id="@+id/bulutluanimasyonlinear"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/bulutlugun">
+
+            <GridLayout
+                android:id="@+id/gridLayoutbulut"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:columnCount="2"
+                android:padding="8dp"
+                android:rowCount="2">
+
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/bulutlu1"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_margin="8dp"
+                    app:lottie_autoPlay="true"
+                    app:lottie_fileName="bulutlu.json"
+                    app:lottie_loop="true" />
+
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/bulutlu2"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_margin="8dp"
+                    app:lottie_autoPlay="true"
+                    app:lottie_fileName="bulutlu2.json"
+                    app:lottie_loop="true" />
+
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/bulutlu3"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_margin="8dp"
+                    app:lottie_autoPlay="true"
+                    app:lottie_fileName="bulutmini.json"
+                    app:lottie_loop="true" />
+
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/bulutlu4"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_margin="8dp"
+                    app:lottie_autoPlay="true"
+                    app:lottie_fileName="gokkusagi.json"
+                    app:lottie_loop="true" />
+
+
+            </GridLayout>
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/a888888"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/bulutluanimasyonlinear"
+            app:srcCompat="@drawable/line" />
+
+        <TextView
+            android:id="@+id/yagmurlulugun"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="20dp"
+            android:text="Yağmurlu Gün Animasyonu"
+            android:textSize="25dp"
+            style="@style/ayarlarfontu"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/a888888" />
+
+        <LinearLayout
+            android:id="@+id/yagmurluanimasyonlinear"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_marginBottom="30dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/yagmurlulugun">
+
+            <GridLayout
+                android:id="@+id/gridLayoutyagmur"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:columnCount="2"
+                android:padding="8dp"
+                android:rowCount="2">
+
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/yagmur1"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_margin="8dp"
+                    app:lottie_autoPlay="true"
+                    app:lottie_fileName="rainmini.json"
+                    app:lottie_loop="true" />
+
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/yagmur2"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_margin="8dp"
+                    app:lottie_autoPlay="true"
+                    app:lottie_fileName="yagmur.json"
+                    app:lottie_loop="true" />
+
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/yagmur4"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_margin="8dp"
+                    app:lottie_autoPlay="true"
+                    app:lottie_fileName="yagmurkadin2.json"
+                    app:lottie_loop="true" />
+
+
+            </GridLayout>
+
+        </LinearLayout>
+
+
+    <GridLayout
+        android:id="@+id/raportemagrid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:columnCount="5"
+        android:rowCount="3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/raporarkaplan">
+
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="@dimen/kare"
+            android:layout_height="@dimen/kare"
+            android:layout_margin="@dimen/karemargin"
+            app:srcCompat="@drawable/settings_color_1" />
+
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="@dimen/kare"
+            android:layout_height="@dimen/kare"
+            android:layout_margin="@dimen/karemargin"
+            app:srcCompat="@drawable/settings_color_2" />
+
+        <ImageView
+            android:id="@+id/imageView3"
+            android:layout_width="@dimen/kare"
+            android:layout_height="@dimen/kare"
+            android:layout_margin="@dimen/karemargin"
+            app:srcCompat="@drawable/settings_color_3" />
+
+        <ImageView
+            android:id="@+id/imageView4"
+            android:layout_width="@dimen/kare"
+            android:layout_height="@dimen/kare"
+            android:layout_margin="@dimen/karemargin"
+            app:srcCompat="@drawable/settings_color_4" />
+
+        <ImageView
+            android:id="@+id/imageView5"
+            android:layout_width="@dimen/kare"
+            android:layout_height="@dimen/kare"
+            android:layout_margin="@dimen/karemargin"
+            app:srcCompat="@drawable/settings_color_5" />
+
+        <ImageView
+            android:id="@+id/imageView6"
+            android:layout_width="@dimen/kare"
+            android:layout_height="@dimen/kare"
+            android:layout_margin="@dimen/karemargin"
+            app:srcCompat="@drawable/settings_color_6" />
+
+        <ImageView
+            android:id="@+id/imageView7"
+            android:layout_width="@dimen/kare"
+            android:layout_height="@dimen/kare"
+            android:layout_margin="@dimen/karemargin"
+            app:srcCompat="@drawable/settings_color_7" />
+
+        <ImageView
+            android:id="@+id/imageView8"
+            android:layout_width="@dimen/kare"
+            android:layout_height="@dimen/kare"
+            android:layout_margin="@dimen/karemargin"
+            app:srcCompat="@drawable/settings_color_8" />
+
+        <ImageView
+            android:id="@+id/imageView9"
+            android:layout_width="@dimen/kare"
+            android:layout_height="@dimen/kare"
+            android:layout_margin="@dimen/karemargin"
+            app:srcCompat="@drawable/settings_color_9" />
+
+        <ImageView
+            android:id="@+id/imageView10"
+            android:layout_width="@dimen/kare"
+            android:layout_height="@dimen/kare"
+            android:layout_margin="@dimen/karemargin"
+            app:srcCompat="@drawable/settings_color_10" />
+
+        <ImageView
+            android:id="@+id/imageView11"
+            android:layout_width="@dimen/kare"
+            android:layout_height="@dimen/kare"
+            android:layout_margin="@dimen/karemargin"
+            app:srcCompat="@drawable/settings_color_11" />
+
+        <ImageView
+            android:id="@+id/imageView12"
+            android:layout_width="@dimen/kare"
+            android:layout_height="@dimen/kare"
+            android:layout_margin="@dimen/karemargin"
+            app:srcCompat="@drawable/settings_color_12" />
+
+        <ImageView
+            android:id="@+id/imageView13"
+            android:layout_width="@dimen/kare"
+            android:layout_height="@dimen/kare"
+            android:layout_margin="@dimen/karemargin"
+            app:srcCompat="@drawable/settings_color_13" />
+
+        <ImageView
+            android:id="@+id/imageView14"
+            android:layout_width="@dimen/kare"
+            android:layout_height="@dimen/kare"
+            android:layout_margin="@dimen/karemargin"
+            app:srcCompat="@drawable/settings_color_14" />
+
+        <ImageView
+            android:id="@+id/imageView15"
+            android:layout_width="@dimen/kare"
+            android:layout_height="@dimen/kare"
+            android:layout_margin="@dimen/karemargin"
+            app:srcCompat="@drawable/settings_color_15" />
+
+    </GridLayout>
+
+        <Switch
+            android:id="@+id/switchdetay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageView888" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.core.widget.NestedScrollView>
