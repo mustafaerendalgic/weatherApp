@@ -53,7 +53,7 @@ class MainActivity : AppCompatActivity() {
 
     }
     fun updateUI(weatherData : WeatherResponse){
-        val adapter
+        //val adapter
         findViewById<TextView>(R.id.derece).text = "${weatherData.current.temperature_2m}°C"
         findViewById<TextView>(R.id.hissedilen).text = "Hissedilen Sıcaklık : ${weatherData.current.apparent_temperature}°C"
         findViewById<TextView>(R.id.nem).text = "Nem : ${weatherData.current.relative_humidity_2m} ${weatherData.current_units.relative_humidity_2m}"

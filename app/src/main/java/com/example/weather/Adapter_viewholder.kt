@@ -25,7 +25,7 @@ class Adapter_hourly() : ListAdapter<HourlyUnits, viewholder_hourly>(Diffcallbac
 
     override fun onBindViewHolder(holder: viewholder_hourly, position: Int) {
         val item = getItem(position)
-        holder.hava_derece = item.
+        //holder.hava_derece = item
     }
 }
 
