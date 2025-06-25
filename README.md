@@ -5,13 +5,14 @@ A customizable Android weather application built with **Kotlin**, providing real
 ## Features
 
 -  Get current weather and forecasts based on your location
--  Line charts displaying besides Card type of viewing:
-  - Temperature
-  - Feels-like temperature
-  - Humidity
-  - Wind speed
+-  Intro that guides you through the app when app is launched for the first time
+-  Forecast for next 24 hours
+-  Forecast for next 7 days
+-  Line chart option for hourly forecast 
+-  Line chart option for next 7 days
 -  Day/night icons and background themes you can customize
 -  Font and color customization for hourly data
+-  Animation options for every state of the weather
 -  Location detection via GPS (with permissions)
 -  Smooth animations when switching views 
 -  Room database for offline display
@@ -37,6 +38,9 @@ A customizable Android weather application built with **Kotlin**, providing real
 - **Custom Fonts & Themes**
 - **Location Services (GPS)**
 - **Retrofit**
+- **Hilt**
+- **TapTargetView**
+  
 
 ## Getting Started
 
