@@ -12,6 +12,7 @@ A customizable Android weather application built with **Kotlin**, providing real
 -  Line chart option for next 7 days
 -  Day/night icons and background themes you can customize
 -  Font and color customization for hourly data
+-  Animation options for every state of the weather
 -  Location detection via GPS (with permissions)
 -  Smooth animations when switching views 
 -  Room database for offline display
