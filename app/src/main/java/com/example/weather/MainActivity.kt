@@ -118,6 +118,7 @@ class MainActivity : AppCompatActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
@@ -125,8 +126,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         checkLocPerm()
-
-        saveDataToSharedPRef(this, "intro", "intro", "tru")
 
         Glide.with(this).asGif().load(R.drawable.nem).into(binding.nemanimasyon)
         Glide.with(this).asGif().load(R.drawable.bulutmini).into(binding.bulutortusu12)
@@ -142,11 +141,11 @@ class MainActivity : AppCompatActivity() {
         val grafikswitchForecast = binding.grafikSwitchForecast
         var switch_state = getDataFromSharedPref(this, "switch_state", "switch_state")
         if(switch_state == "empty"){
-            switch_state = "0"
+            switch_state = "false"
         }
         var forecast_switch_state = getDataFromSharedPref(this, "forecast_switch_state", "switch_state")
         if(forecast_switch_state == "empty")
-            forecast_switch_state = "1"
+            forecast_switch_state = "true"
         val rv = binding.saatlik2
         val rv_forecast = binding.forecast
 
@@ -1381,7 +1380,7 @@ class MainActivity : AppCompatActivity() {
 
             ).listener(object: TapTargetSequence.Listener{
                 override fun onSequenceFinish() {
-                    saveDataToSharedPRef(this@MainActivity, "intro", "intro", "false")
+                    saveDataToSharedPRef(this@MainActivity, "intro", "intro", "true")
                 }
 
                 override fun onSequenceStep(
@@ -1415,7 +1414,7 @@ class MainActivity : AppCompatActivity() {
                                             .targetRadius(60)
                                     ).listener(object: TapTargetSequence.Listener{
                                         override fun onSequenceFinish() {
-                                            saveDataToSharedPRef(this@MainActivity, "intro", "intro", "false")
+                                            saveDataToSharedPRef(this@MainActivity, "intro", "intro", "true")
                                         }
 
                                         override fun onSequenceStep(

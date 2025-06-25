@@ -82,6 +82,7 @@ class ayarlar : AppCompatActivity() {
             "#b3db81",
             "#b3db81"
             )
+
         val color = getColorFromSharedPref(this)
         for (index in colors.indices){
             if(colors[index] == color){
