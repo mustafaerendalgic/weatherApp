@@ -11,4 +11,8 @@
     <color name="mor">#7c6fde</color>
     <color name="gunes">#edbc34</color>
     <color name="yagmur">#3487ed</color>
+    <color name="arkaplan">#ffffff</color>
+    <color name="outerCircle">#4d4ca1</color>
+    <color name="innerCircle">#614ca1</color>
+
 </resources>

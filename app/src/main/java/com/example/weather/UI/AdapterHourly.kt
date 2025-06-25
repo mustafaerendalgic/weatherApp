@@ -38,6 +38,8 @@ class ViewHolderHourly(item : View) : RecyclerView.ViewHolder(item){
 
 class AdapterHourly(private var sel_color : String, val ctx : Context, private var font : String) : ListAdapter<HourlyList, ViewHolderHourly>(DiffCallback()){
 
+
+
     fun backGUpdate(color : String){
         sel_color = color
         notifyDataSetChanged()
@@ -49,6 +51,7 @@ class AdapterHourly(private var sel_color : String, val ctx : Context, private v
     }
 
     fun changeTheFont(holder: ViewHolderHourly){
+
         val textViews = listOf(holder.saat, holder.hava_derece, holder.hissedilen)
         var fontid = getFontId(ctx, font)
         fontid?.let {
@@ -67,6 +70,8 @@ class AdapterHourly(private var sel_color : String, val ctx : Context, private v
     }
 
     override fun onBindViewHolder(holder: ViewHolderHourly, position: Int) {
+        if(font == "empty")
+            font = "annie"
         val item = getItem(position)
         holder.im2.visibility = View.INVISIBLE
         holder.animasyon.visibility = View.VISIBLE

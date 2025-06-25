@@ -22,45 +22,47 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import com.airbnb.lottie.LottieAnimationView
 import com.example.weather.databinding.ActivityAyarlarBinding
 import com.example.weather.util.*
+import dagger.hilt.android.AndroidEntryPoint
 
 
-
-
+@AndroidEntryPoint
 class ayarlar : AppCompatActivity() {
+
+    private lateinit var binding: ActivityAyarlarBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_ayarlar)
+        binding = ActivityAyarlarBinding.inflate(layoutInflater)
+
+        setContentView(binding.root)
 
         val get_switch_info = getDataFromSharedPref(this, "switch_detay", "switch_detay")
 
-        val switchdetay = findViewById<Switch>(R.id.switchdetay)
+        val switchdetay = binding.switchdetay
         switchdetay.isChecked = if(get_switch_info == "1") true else false
         switchdetay.setOnCheckedChangeListener { _, isChecked ->
             val valueToSave = if (isChecked) "1" else "0"
             saveDataToSharedPRef(this, "switch_detay", "switch_detay", valueToSave)
         }
 
-
-
-
         val imageViews = listOf(
-            findViewById<ImageView>(R.id.imageView1),
-            findViewById<ImageView>(R.id.imageView2),
-            findViewById<ImageView>(R.id.imageView3),
-            findViewById<ImageView>(R.id.imageView4),
-            findViewById<ImageView>(R.id.imageView5),
-            findViewById<ImageView>(R.id.imageView6),
-            findViewById<ImageView>(R.id.imageView7),
-            findViewById<ImageView>(R.id.imageView8),
-            findViewById<ImageView>(R.id.imageView9),
-            findViewById<ImageView>(R.id.imageView10),
-            findViewById<ImageView>(R.id.imageView11),
-            findViewById<ImageView>(R.id.imageView12),
-            findViewById<ImageView>(R.id.imageView13),
-            findViewById<ImageView>(R.id.imageView14),
-            findViewById<ImageView>(R.id.imageView15)
+            binding.imageView1,
+            binding.imageView2,
+            binding.imageView3,
+            binding.imageView4,
+            binding.imageView5,
+            binding.imageView6,
+            binding.imageView7,
+            binding.imageView8,
+            binding.imageView9,
+            binding.imageView10,
+            binding.imageView11,
+            binding.imageView12,
+            binding.imageView13,
+            binding.imageView14,
+            binding.imageView15,
+
         )
 
         val colors = listOf(
@@ -95,14 +97,16 @@ class ayarlar : AppCompatActivity() {
         }
 
         val fonts = listOf(
-            findViewById<TextView>(R.id.nb),
-            findViewById(R.id.single),
-            findViewById(R.id.inter),
-            findViewById(R.id.annie),
-            findViewById(R.id.zilla),
-            findViewById(R.id.indie)
+            binding.nb,
+            binding.single,
+            binding.inter,
+            binding.annie,
+            binding.zilla,
+            binding.indie
             )
-        val selected = getDataFromSharedPref(this, "selected_font", "selected_font")
+        var selected = getDataFromSharedPref(this, "selected_font", "selected_font")
+        if(selected == "empty")
+            selected = "annie"
         var index: Int
         when(selected){
             "annie"-> index = 3
@@ -173,10 +177,11 @@ class ayarlar : AppCompatActivity() {
         }
 
         val gunesli_gun_animasyonlari = listOf<LottieAnimationView>(
-            findViewById(R.id.gunesli1),
-            findViewById(R.id.gunesli2),
-            findViewById(R.id.gunesli3),
-            findViewById(R.id.gunesli4)
+            binding.gunesli1,
+            binding.gunesli2,
+            binding.gunesli3,
+            binding.gunesli4,
+
         )
 
         val gunesli_isim = listOf("gunes.json", "gunesmini.json", "girllaying.json", "gunesmini2.json")
@@ -199,9 +204,9 @@ class ayarlar : AppCompatActivity() {
 
 
         val yagmurlu_gun_animasyonlari = listOf<LottieAnimationView>(
-            findViewById(R.id.yagmur1),
-            findViewById(R.id.yagmur2),
-            findViewById(R.id.yagmur4)
+            binding.yagmur1,
+            binding.yagmur2,
+            binding.yagmur4,
         )
 
         val yagmurlu_isim = listOf("rainmini.json", "yagmur.json", "yagmurkadin2.json")
@@ -224,10 +229,10 @@ class ayarlar : AppCompatActivity() {
         }
 
         val bulutlu_gun_animasyonlari = listOf<LottieAnimationView>(
-            findViewById(R.id.bulutlu1),
-            findViewById(R.id.bulutlu2),
-            findViewById(R.id.bulutlu3),
-            findViewById(R.id.bulutlu4)
+            binding.bulutlu1,
+            binding.bulutlu2,
+            binding.bulutlu3,
+            binding.bulutlu4,
         )
 
         val bulutlu_isim = listOf("bulutlu.json", "bulutlu2.json", "bulutmini.json", "gokkusagi.json")

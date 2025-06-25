@@ -12,7 +12,7 @@ fun saveColorToSharedPref(context: Context, color: String) {
 
 fun getColorFromSharedPref(context: Context): String? {
     val sharedPref = context.getSharedPreferences("renk_shared", MODE_PRIVATE)
-    return sharedPref.getString("renk_shared", null)
+    return sharedPref.getString("renk_shared", "#869feb") //"#6ec29a"
 }
 
 fun saveDataToSharedPRef(context: Context, sharedName: String, dataName: String, data: String) {

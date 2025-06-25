@@ -7,8 +7,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Geocoder
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
 import android.os.Looper
@@ -29,6 +27,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -41,6 +40,7 @@ import com.example.weather.data.DailyForecast
 import com.example.weather.data.ForecastChart
 import com.example.weather.data.HourlyList
 import com.example.weather.data.WeatherResponse
+import com.example.weather.databinding.ActivityMainBinding
 import com.example.weather.retrofit.RetrApi
 import com.example.weather.util.getLocFromSharedPref
 import com.google.android.gms.location.LocationResult
@@ -56,6 +56,9 @@ import java.util.Calendar
 import java.util.Locale
 import com.example.weather.util.*
 import com.example.weather.viewmodel.WeatherViewModel
+import com.getkeepsafe.taptargetview.TapTarget
+import com.getkeepsafe.taptargetview.TapTargetSequence
+import com.getkeepsafe.taptargetview.TapTargetView
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.Legend
@@ -68,11 +71,17 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
 
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private var check = 0
 
+    lateinit var  binding : ActivityMainBinding
 
     private val viewModel : WeatherViewModel by viewModels()
 
@@ -103,62 +112,71 @@ class MainActivity : AppCompatActivity() {
 
     private var internetAlertCheck = false
 
+    private var databaseFlag = false
+
+    private var uiFlag = false
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         checkLocPerm()
 
-        Glide.with(this).asGif().load(R.drawable.nem).into(findViewById<ImageView>(R.id.nemanimasyon))
-        Glide.with(this).asGif().load(R.drawable.bulutmini).into(findViewById<ImageView>(R.id.bulutortusu12))
-        Glide.with(this).asGif().load(R.drawable.ruzgar).into(findViewById<ImageView>(R.id.ruzgaranimasyon))
-        Glide.with(this).asGif().load(R.drawable.ruzgar).into(findViewById<ImageView>(R.id.ruzgaranimasyon2))
-        Glide.with(this).asGif().load(R.drawable.rainmini).into(findViewById<ImageView>(R.id.yagmuranimasyon1))
-        Glide.with(this).asGif().load(R.drawable.rainmini).into(findViewById<ImageView>(R.id.bulutortusu))
-        Glide.with(this).asGif().load(R.drawable.metre).into(findViewById<ImageView>(R.id.basincanimasyon))
+        saveDataToSharedPRef(this, "intro", "intro", "tru")
 
+        Glide.with(this).asGif().load(R.drawable.nem).into(binding.nemanimasyon)
+        Glide.with(this).asGif().load(R.drawable.bulutmini).into(binding.bulutortusu12)
+        Glide.with(this).asGif().load(R.drawable.ruzgar).into(binding.ruzgaranimasyon)
+        Glide.with(this).asGif().load(R.drawable.ruzgar).into(binding.ruzgaranimasyon2)
+        Glide.with(this).asGif().load(R.drawable.rainmini).into(binding.yagmuranimasyon1)
+        Glide.with(this).asGif().load(R.drawable.rainmini).into(binding.bulutortusu)
+        Glide.with(this).asGif().load(R.drawable.metre).into(binding.basincanimasyon)
 
-        var chart = findViewById<ConstraintLayout>(R.id.saatlikChart)
-        val chartForecast = findViewById<LineChart>(R.id.forecastLineChart)
-        val grafikSwitch = findViewById<Switch>(R.id.grafikSwitch)
-        val grafikswitchForecast = findViewById<Switch>(R.id.grafikSwitchForecast)
-        val switch_state = getDataFromSharedPref(this, "switch_state", "switch_state") ?: "0"
-        val forecast_switch_state = getDataFromSharedPref(this, "forecast_switch_state", "switch_state") ?: "0"
-        val rv = findViewById<RecyclerView>(R.id.saatlik2)
-        val rv_forecast = findViewById<RecyclerView>(R.id.forecast)
+        val chart = binding.saatlikChart
+        val chartForecast = binding.forecastLineChart
+        val grafikSwitch = binding.grafikSwitch
+        val grafikswitchForecast = binding.grafikSwitchForecast
+        var switch_state = getDataFromSharedPref(this, "switch_state", "switch_state")
+        if(switch_state == "empty"){
+            switch_state = "0"
+        }
+        var forecast_switch_state = getDataFromSharedPref(this, "forecast_switch_state", "switch_state")
+        if(forecast_switch_state == "empty")
+            forecast_switch_state = "1"
+        val rv = binding.saatlik2
+        val rv_forecast = binding.forecast
 
-        grafikswitchForecast.setOnClickListener {
+        binding.grafikSwitchForecast.setOnClickListener {
 
-            if(grafikswitchForecast.isChecked == false) {
-                chartForecast.animate().setDuration(1000).translationX(-resources.displayMetrics.widthPixels.toFloat()).setInterpolator(
-                    AnticipateOvershootInterpolator()).withEndAction {
-                    rv_forecast.translationX = resources.displayMetrics.widthPixels.toFloat()
-                    rv_forecast.visibility = View.VISIBLE
-                    rv_forecast.animate().translationX(0f).setDuration(1000).setInterpolator(
-                        AnticipateOvershootInterpolator()).start()
-                    chartForecast.visibility = View.GONE
-                }.start()
-
-                saveDataToSharedPRef(this, "forecast_switch_state", "switch_state", "false")
-            }
-            else{
-                rv_forecast.animate().setDuration(1000).translationX(-resources.displayMetrics.widthPixels.toFloat()).setInterpolator(
-                    AnticipateOvershootInterpolator()).withEndAction {
-                    rv_forecast.visibility = View.GONE
-                    chartForecast.translationX = resources.displayMetrics.widthPixels.toFloat()
-                    chartForecast.visibility = View.VISIBLE
-                    chartForecast.animate().translationX(0f).setDuration(1000).setInterpolator(
-                        AnticipateOvershootInterpolator()).withEndAction {
-
+            if (binding.grafikSwitchForecast.isChecked == false) {
+                binding.forecastLineChart.animate().setDuration(1000)
+                    .translationX(-resources.displayMetrics.widthPixels.toFloat())
+                    .setInterpolator(AnticipateOvershootInterpolator()).withEndAction {
+                        binding.forecast.translationX = resources.displayMetrics.widthPixels.toFloat()
+                        binding.forecast.visibility = View.VISIBLE
+                        binding.forecast.animate().translationX(0f).setDuration(1000)
+                            .setInterpolator(AnticipateOvershootInterpolator()).start()
+                        binding.forecastLineChart.visibility = View.GONE
                     }.start()
 
-                }.start()
+                saveDataToSharedPRef(this, "forecast_switch_state", "switch_state", "false")
+            } else {
+                binding.forecast.animate().setDuration(1000)
+                    .translationX(-resources.displayMetrics.widthPixels.toFloat())
+                    .setInterpolator(AnticipateOvershootInterpolator()).withEndAction {
+                        binding.forecast.visibility = View.GONE
+                        binding.forecastLineChart.translationX = resources.displayMetrics.widthPixels.toFloat()
+                        binding.forecastLineChart.visibility = View.VISIBLE
+                        binding.forecastLineChart.animate().translationX(0f).setDuration(1000)
+                            .setInterpolator(AnticipateOvershootInterpolator()).start()
+                    }.start()
 
                 saveDataToSharedPRef(this, "forecast_switch_state", "switch_state", "true")
             }
-
         }
 
         grafikSwitch.setOnClickListener {
@@ -187,7 +205,6 @@ class MainActivity : AppCompatActivity() {
                     }.start()
 
                 }.start()
-
                 saveDataToSharedPRef(this, "switch_state", "switch_state", "true")
             }
 
@@ -220,21 +237,22 @@ class MainActivity : AppCompatActivity() {
         }
 
         val font = getDataFromSharedPref(this, "selected_font", "selected_font")
+
         Adapter_hourly1.fontUpdate(font)
         Adapter_hourly_detailed.fontUpdate(font)
         AdapterForecast.fontUpdate(font)
 
 
-        val settings = findViewById<ImageView>(R.id.ayarlar)
+        val settings = binding.ayarlar
         settings.setOnClickListener {
             val settingsIntent = Intent(this, ayarlar::class.java)
             startActivityForResult(settingsIntent, 1001)
         }
 
-        val refresh = findViewById<SwipeRefreshLayout>(R.id.swipe)
+        val refresh = binding.swipe
         refresh.setOnRefreshListener {
-
-            if(checkLocation(this)) {
+            uiFlag = false
+            if(checkConnection(this)) {
                 getUserLoc(object : LocationCallback {
                     override fun onLocationReceived(latitude: Double, longitude: Double) {
                         fetchWeatherData(latitude, longitude)
@@ -260,510 +278,591 @@ class MainActivity : AppCompatActivity() {
         }
 
         val loc = getLocFromSharedPref(this)
-
-        loc?.let {
+        loc?.let{
             fetchWeatherData(loc.first, loc.second)
         }
 
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun updateUI(weatherData : WeatherResponse) {
+    fun updateUI(weatherData : WeatherResponse): Int {
 
-        viewModel.setWeatherResponse(weatherData)
+        if (device_latitude == null || device_longitude == null) {
+            Log.d("locationeren", "Location is null, skipping updateUI")
 
-        val list = convertHourlyToList(weatherData)
-        val list2 = convertHourlyToList(weatherData, 1)
+        }
 
-        var chart = findViewById<LineChart>(R.id.saatlikChartLine)
-        var chartBar = findViewById<BarChart>(R.id.saatlikChartBar)
-        var chartHum = findViewById<LineChart>(R.id.saatlikHumChartLine)
+        else if (!uiFlag){
+            uiFlag = true
+            Log.e("udate ui", "ui update: ${weatherData}")
 
-        if(chart != null){
-            val entries = list.mapIndexedNotNull { int, list1 ->
-                Entry(int.toFloat(), list1.temperature_2m.toFloat())
-            }
+            if (!checkConnection(this) && databaseFlag == false) {
+                databaseFlag = true
+                lifecycleScope.launch {
+                    val cached = viewModel.getWeather()
+                    if (cached != null) {
+                        updateUI(cached)
+                    }
 
-            val entriesApp = list.mapIndexedNotNull { int, list1 ->
-                Entry(int.toFloat(), list1.apparent_temperature.toFloat())
-            }
-            val detay = getDataFromSharedPref(this, "switch_detay", "switch_detay")
-
-            val dataSet = LineDataSet(entries, "Sıcaklık (°C)")
-
-            val combinedLineData = LineData()
-
-            val combinedBarData = BarData()
-
-            val valueformatter = object : ValueFormatter() {
-                override fun getPointLabel(entry: Entry?): String? {
-                    return if (entry?.x == 0f) "" else "${entry?.y?.toInt()}°"
-                }
-            }
-
-            val valueformatterHum = object : ValueFormatter() {
-                override fun getPointLabel(entry: Entry?): String? {
-                    return if (entry?.x == 0f) "" else "${entry?.y?.toInt()}%"
-                }
-            }
-
-            val alpha = 80
-
-            dataSet.apply {
-                fillAlpha = alpha
-                color = Color.parseColor(getColorFromSharedPref(this@MainActivity) ?: "#aa000000")
-                lineWidth = 2f
-                mode = LineDataSet.Mode.CUBIC_BEZIER
-                setDrawCircles(false)
-                valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                valueTextColor = Color.parseColor("#aa000000")
-                valueFormatter = valueformatter
-                valueTextSize = 12f
-            }
-
-            val appDataSet = LineDataSet(entriesApp, "Hissedilen Sıcaklık (°C)").apply {
-                setDrawValues(false)
-                fillAlpha = alpha
-                color = Color.parseColor("#6ec29a")
-                lineWidth = 2f
-                mode = LineDataSet.Mode.CUBIC_BEZIER
-                setDrawCircles(false)
-                valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                valueTextColor = Color.parseColor("#aa000000")
-                valueFormatter = valueformatter
-                valueTextSize = 12f
-            }
-
-            if(detay == "1"){
-
-                chartBar.visibility = View.VISIBLE
-                chartHum.visibility = View.VISIBLE
-
-                val entriesHum = list.mapIndexedNotNull { int, list1 ->
-                    Entry(int.toFloat(), list1.relative_humidity_2m.toFloat())
                 }
 
-                val entriesWind = list.mapIndexedNotNull { int, list1 ->
-                    BarEntry(int.toFloat(), list1.wind_speed_10m.toFloat())
+            } else {
+                getUserLoc(object : LocationCallback {
+                    override fun onLocationReceived(latitude: Double, longitude: Double) {
+                        if (!databaseFlag)
+                            fetchWeatherData(latitude, longitude)
+                    }
+                })
+
+            }
+
+            val list = convertHourlyToList(weatherData)
+            val list2 = convertHourlyToList(weatherData, 1)
+
+            var chart = binding.saatlikChartLine
+            var chartBar = binding.saatlikChartBar
+            var chartHum = binding.saatlikHumChartLine
+
+            if (chart != null) {
+                val entries = list.mapIndexedNotNull { int, list1 ->
+                    Entry(int.toFloat(), list1.temperature_2m.toFloat())
                 }
 
-                val ruzHizDataSet = BarDataSet(entriesWind, "Rüzgar Hızı (km/h)").apply {
+                val entriesApp = list.mapIndexedNotNull { int, list1 ->
+                    Entry(int.toFloat(), list1.apparent_temperature.toFloat())
+                }
+                val detay = getDataFromSharedPref(this, "switch_detay", "switch_detay")
 
-                    valueTextSize = 12f
-                    color = Color.parseColor("#6ec29a")
+                val dataSet = LineDataSet(entries, "Sıcaklık (°C)")
+
+                val combinedLineData = LineData()
+
+                val combinedBarData = BarData()
+
+                val valueformatter = object : ValueFormatter() {
+                    override fun getPointLabel(entry: Entry?): String? {
+                        return if (entry?.x == 0f) "" else "${entry?.y?.toInt()}°"
+                    }
+                }
+
+                val valueformatterHum = object : ValueFormatter() {
+                    override fun getPointLabel(entry: Entry?): String? {
+                        return if (entry?.x == 0f) "" else "${entry?.y?.toInt()}%"
+                    }
+                }
+
+                val alpha = 80
+
+                dataSet.apply {
+                    fillAlpha = alpha
+                    color =
+                        Color.parseColor(getColorFromSharedPref(this@MainActivity) ?: "#aa000000")
+                    lineWidth = 2f
+                    mode = LineDataSet.Mode.CUBIC_BEZIER
+                    setDrawCircles(false)
                     valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
                     valueTextColor = Color.parseColor("#aa000000")
-                    isHighlightEnabled = false
+                    valueFormatter = valueformatter
+                    valueTextSize = 12f
                 }
 
-                combinedBarData.barWidth = 0.4f
-
-                val nemDataSet = LineDataSet(entriesHum, "Nem (%)").apply {
+                val appDataSet = LineDataSet(entriesApp, "Hissedilen Sıcaklık (°C)").apply {
+                    setDrawValues(false)
                     fillAlpha = alpha
-                    valueTextSize = 12f
                     color = Color.parseColor("#6ec29a")
                     lineWidth = 2f
                     mode = LineDataSet.Mode.CUBIC_BEZIER
                     setDrawCircles(false)
                     valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
                     valueTextColor = Color.parseColor("#aa000000")
-                    valueFormatter = valueformatterHum
-                    isHighlightEnabled = false
+                    valueFormatter = valueformatter
+                    valueTextSize = 12f
                 }
 
-                chartBar.xAxis.apply {
+                if (detay == "1") {
+
+                    chartBar.visibility = View.VISIBLE
+                    chartHum.visibility = View.VISIBLE
+
+                    val entriesHum = list.mapIndexedNotNull { int, list1 ->
+                        Entry(int.toFloat(), list1.relative_humidity_2m.toFloat())
+                    }
+
+                    val entriesWind = list.mapIndexedNotNull { int, list1 ->
+                        BarEntry(int.toFloat(), list1.wind_speed_10m.toFloat())
+                    }
+
+                    val ruzHizDataSet = BarDataSet(entriesWind, "Rüzgar Hızı (km/h)").apply {
+
+                        valueTextSize = 12f
+                        color = Color.parseColor("#6ec29a")
+                        valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                        valueTextColor = Color.parseColor("#aa000000")
+                        isHighlightEnabled = false
+                    }
+
+                    combinedBarData.barWidth = 0.4f
+
+                    val nemDataSet = LineDataSet(entriesHum, "Nem (%)").apply {
+                        fillAlpha = alpha
+                        valueTextSize = 12f
+                        color = Color.parseColor("#6ec29a")
+                        lineWidth = 2f
+                        mode = LineDataSet.Mode.CUBIC_BEZIER
+                        setDrawCircles(false)
+                        valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                        valueTextColor = Color.parseColor("#aa000000")
+                        valueFormatter = valueformatterHum
+                        isHighlightEnabled = false
+                    }
+
+                    chartBar.xAxis.apply {
+                        axisLineColor = Color.parseColor(getColorFromSharedPref(this@MainActivity))
+                        axisLineWidth = 2f
+                        textSize = 10f
+                        typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                        //granularity = 3f
+                        isGranularityEnabled = true
+                        valueFormatter =
+                            IndexAxisValueFormatter(list.map { it.time.substringAfter("T") })
+                    }
+
+                    chartBar.axisLeft.apply {
+                        /*setDrawAxisLine(true)
+                        axisLineWidth = 2f
+                        textSize = 10f
+                        typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)*/
+                        //granularity = 2f
+                    }
+
+                    chartBar.axisRight.setDrawGridLines(false)
+                    chartBar.axisLeft.setDrawGridLines(false)
+                    chartBar.xAxis.setDrawGridLines(false)
+
+                    chartHum.xAxis.apply {
+                        axisLineColor = Color.parseColor(getColorFromSharedPref(this@MainActivity))
+                        axisLineWidth = 2f
+                        textSize = 10f
+                        typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                        //granularity = 2f
+                        isGranularityEnabled = true
+                        valueFormatter =
+                            IndexAxisValueFormatter(list.map { it.time.substringAfter("T") })
+                    }
+
+                    chartHum.axisLeft.apply {
+
+                        setDrawAxisLine(true)
+                        axisLineWidth = 2f
+                        textSize = 10f
+                        typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                        granularity = 2f
+                    }
+
+                    chartHum.axisRight.setDrawGridLines(false)
+                    chartHum.axisLeft.setDrawGridLines(false)
+                    chartHum.xAxis.setDrawGridLines(false)
+
+                    chartHum.axisRight.setDrawAxisLine(false)
+                    chartBar.axisRight.setDrawAxisLine(false)
+                    chartHum.axisRight.setDrawLabels(false)
+                    chartBar.axisRight.setDrawLabels(false)
+
+                    chart.axisLeft.axisMaximum =
+                        maxOf(entries.maxOf { it.y }, entriesApp.maxOf { it.y }) + 6f
+                    chartHum.axisLeft.axisMaximum = entriesHum.maxOf { it.y } + 10f
+                    chartBar.axisLeft.axisMaximum = entriesWind.maxOf { it.y } + 4f
+
+                    chartHum.description.text = ""
+                    chartBar.description.text = ""
+
+                    val humData = LineData(nemDataSet)
+
+                    chartHum.data = humData
+
+                    combinedBarData.addDataSet(ruzHizDataSet)
+
+                    chartBar.data = combinedBarData
+
+                    chartBar.setDragEnabled(true)
+                    chartBar.setScaleEnabled(false)
+                    chartBar.setVisibleXRangeMaximum(8f)
+                    chartBar.moveViewToX(-1f)
+
+                    chartHum.setDragEnabled(true)
+                    chartHum.setScaleEnabled(false)
+                    chartHum.setVisibleXRangeMaximum(8f)
+                    chartHum.moveViewToX(0f)
+
+
+
+                    chartBar.data.notifyDataChanged()
+                    chartBar.notifyDataSetChanged()
+                    chartHum.notifyDataSetChanged()
+                    chartBar.invalidate()
+                    chartHum.invalidate()
+
+                } else {
+                    chartBar.visibility = View.GONE
+                    chartHum.visibility = View.GONE
+                }
+
+                chart.xAxis.apply {
+                    setDrawGridLines(false)
                     axisLineColor = Color.parseColor(getColorFromSharedPref(this@MainActivity))
                     axisLineWidth = 2f
                     textSize = 10f
                     typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
                     //granularity = 3f
                     isGranularityEnabled = true
-                    valueFormatter = IndexAxisValueFormatter(list.map { it.time.substringAfter("T") })
+                    valueFormatter =
+                        IndexAxisValueFormatter(list.map { it.time.substringAfter("T") })
                 }
 
-                chartBar.axisLeft.apply {
-                    /*setDrawAxisLine(true)
+                chart.description.isEnabled = false
+
+                chart.axisLeft.apply {
                     axisLineWidth = 2f
                     textSize = 10f
-                    typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)*/
-                    //granularity = 2f
-                }
-
-                chartBar.axisRight.setDrawGridLines(false)
-                chartBar.axisLeft.setDrawGridLines(false)
-                chartBar.xAxis.setDrawGridLines(false)
-
-                chartHum.xAxis.apply {
-                    axisLineColor = Color.parseColor(getColorFromSharedPref(this@MainActivity))
-                    axisLineWidth = 2f
-                    textSize = 10f
+                    setDrawGridLines(false)
                     typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                    //granularity = 2f
-                    isGranularityEnabled = true
-                    valueFormatter = IndexAxisValueFormatter(list.map { it.time.substringAfter("T") })
+                    granularity = 3f
+
                 }
 
-                chartHum.axisLeft.apply {
-
-                    setDrawAxisLine(true)
-                    axisLineWidth = 2f
-                    textSize = 10f
+                chart.legend.apply {
+                    isEnabled = true
+                    form = Legend.LegendForm.CIRCLE
+                    formSize = 10f
+                    textSize = 12f
                     typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                    granularity = 2f
+                    textColor = Color.parseColor("#aa000000")
+                    verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+                    horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
+                    orientation = Legend.LegendOrientation.HORIZONTAL
+                    setDrawInside(false)
                 }
 
-                chartHum.axisRight.setDrawGridLines(false)
-                chartHum.axisLeft.setDrawGridLines(false)
-                chartHum.xAxis.setDrawGridLines(false)
+                chartHum.legend.apply {
+                    isEnabled = true
+                    form = Legend.LegendForm.CIRCLE
+                    formSize = 10f
+                    textSize = 12f
+                    typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                    textColor = Color.parseColor("#aa000000")
+                    verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+                    horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
+                    orientation = Legend.LegendOrientation.HORIZONTAL
+                    setDrawInside(false)
+                }
 
-                chartHum.axisRight.setDrawAxisLine(false)
-                chartBar.axisRight.setDrawAxisLine(false)
-                chartHum.axisRight.setDrawLabels(false)
-                chartBar.axisRight.setDrawLabels(false)
+                chartBar.legend.apply {
+                    isEnabled = true
+                    form = Legend.LegendForm.CIRCLE
+                    formSize = 10f
+                    textSize = 12f
+                    typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                    textColor = Color.parseColor("#aa000000")
+                    verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+                    horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
+                    orientation = Legend.LegendOrientation.HORIZONTAL
+                    setDrawInside(false)
+                }
 
-                chart.axisLeft.axisMaximum = maxOf(entries.maxOf { it.y }, entriesApp.maxOf { it.y }) + 6f
-                chartHum.axisLeft.axisMaximum = entriesHum.maxOf { it.y } + 10f
-                chartBar.axisLeft.axisMaximum = entriesWind.maxOf { it.y } + 4f
+                chart.xAxis.setAvoidFirstLastClipping(true)
 
-                    chartHum.description.text = ""
-                chartBar.description.text = ""
+                combinedLineData.addDataSet(dataSet)
+                combinedLineData.addDataSet(appDataSet)
 
-                val humData = LineData(nemDataSet)
+                chart.data = combinedLineData
 
-                chartHum.data = humData
+                chart.setDragEnabled(true)
+                chart.setScaleEnabled(false)
+                chart.setVisibleXRangeMaximum(8f)
+                chart.moveViewToX(0f)
 
-                combinedBarData.addDataSet(ruzHizDataSet)
-
-                chartBar.data = combinedBarData
-
-                chartBar.setDragEnabled(true)
-                chartBar.setScaleEnabled(false)
-                chartBar.setVisibleXRangeMaximum(8f)
-                chartBar.moveViewToX(-1f)
 
                 chartHum.setDragEnabled(true)
                 chartHum.setScaleEnabled(false)
                 chartHum.setVisibleXRangeMaximum(8f)
                 chartHum.moveViewToX(0f)
 
+                chart.axisRight.isEnabled = false
 
+                chart.notifyDataSetChanged()
 
-                chartBar.data.notifyDataChanged()
-                chartBar.notifyDataSetChanged()
-                chartHum.notifyDataSetChanged()
-                chartBar.invalidate()
-                chartHum.invalidate()
+                chart.invalidate()
 
             }
 
-            else{
-                chartBar.visibility = View.GONE
-                chartHum.visibility = View.GONE
+            val chartForec = binding.forecastLineChart
+
+            if (chartForec != null) {
+
+                val list = convertHourlyToListForecastChart(weatherData)
+
+                val rainIcon = ContextCompat.getDrawable(this@MainActivity, R.drawable.rain)
+                val sunIcon = ContextCompat.getDrawable(this@MainActivity, R.drawable.sun_74)
+                val offset = 0.1f
+                val entriesMax = list.mapIndexedNotNull { int, item ->
+                    val entry = Entry(int.toFloat() + offset, item.max_temp.toFloat())
+                    entry
+                }
+
+                val entriesSun = list.mapIndexedNotNull { int, item ->
+                    val entry = Entry(
+                        int.toFloat() + offset,
+                        (item.max_temp.toFloat() + item.min_temp.toFloat()) / 2f
+                    )
+                    entry.icon = if (item.yagmur == 1) rainIcon else sunIcon
+                    entry
+                }
+
+                val entriesMin = list.mapIndexedNotNull { int, item ->
+                    Entry(
+                        int.toFloat() + offset,
+                        item.min_temp.toFloat()
+                    )
+                }
+
+                val days = list.map { it.time.substringAfter(",").trim() }
+
+                val dataMax = LineDataSet(entriesMax, "Sıcaklık Max (°C)")
+                val dataMin = LineDataSet(entriesMin, "Sıcaklık Min (°C)")
+                val dataSun = LineDataSet(entriesSun, "")
+
+                dataSun.apply {
+                    setDrawValues(false)
+                    setDrawCircles(false)
+                    setDrawFilled(false)
+                    color = Color.parseColor("#ffffff")
+                    setDrawIcons(true)
+                }
+
+                val valueFormatter1 = object : ValueFormatter() {
+                    override fun getPointLabel(entry: Entry?): String? {
+                        return if (entry?.x == 0f) "" else "${entry?.y?.toInt()}°"
+                    }
+                }
+
+                dataMax.apply {
+                    valueTextSize = 12f
+                    isHighlightEnabled = false
+                    setDrawCircles(true)
+                    setCircleColors(
+                        Color.parseColor(
+                            getColorFromSharedPref(this@MainActivity) ?: "#aa000000"
+                        )
+                    )
+                    lineWidth = 2f
+                    circleSize = 4f
+                    valueTextColor = Color.parseColor("#aa000000")
+                    valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                    color =
+                        Color.parseColor(getColorFromSharedPref(this@MainActivity) ?: "#aa000000")
+                    valueFormatter = valueFormatter1
+                }
+
+                dataMin.apply {
+                    valueTextSize = 12f
+                    isHighlightEnabled = false
+                    setDrawCircles(true)
+                    setCircleColors(Color.parseColor("#aa000000"))
+                    lineWidth = 2f
+                    circleSize = 4f
+                    valueTextColor = Color.parseColor("#aa000000")
+                    valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                    color = Color.parseColor("#77000000")
+                    valueFormatter = valueFormatter1
+                }
+
+                chartForec.description.text = ""
+                chartForec.legend.apply {
+                    isEnabled = true
+                    form = Legend.LegendForm.CIRCLE
+                    formSize = 10f
+                    textSize = 12f
+                    typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                    textColor = Color.parseColor("#aa000000")
+                    verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+                    horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
+                    orientation = Legend.LegendOrientation.HORIZONTAL
+                    setDrawInside(false)
+                }
+
+                chartForec.xAxis.apply {
+                    valueFormatter = IndexAxisValueFormatter(days)
+                    typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                    setDrawGridLines(false)
+                    textSize = 12f
+                }
+
+                chart.axisLeft.axisMaximum = entriesMax.maxOf { it.y } + 4f
+                chartForec.setExtraOffsets(30f, 0f, 0f, 10f)
+                chartForec.isHighlightPerTapEnabled = false
+
+                chartForec.axisLeft.apply {
+                    isEnabled = false
+                }
+
+                chartForec.extraTopOffset = 10f
+                chartForec.setScaleEnabled(false)
+                chartForec.setDragEnabled(true)
+                chartForec.setVisibleXRangeMaximum(3f)
+                chartForec.moveViewToX(0f)
+                chartForec.axisLeft.setDrawGridLines(false)
+                chartForec.xAxis.apply {
+                    setDrawGridLines(false)
+                    setDrawAxisLine(false)
+                }
+                chartForec.axisRight.apply {
+                    isEnabled = false
+                }
+
+
+                val dataTemp = LineData()
+                dataTemp.addDataSet(dataMax)
+                dataTemp.addDataSet(dataMin)
+                dataTemp.addDataSet(dataSun)
+
+                chartForec.data = dataTemp
+
+                chartForec.notifyDataSetChanged()
+                chartForec.invalidate()
+
             }
 
-            chart.xAxis.apply {
-                setDrawGridLines(false)
-                axisLineColor = Color.parseColor(getColorFromSharedPref(this@MainActivity))
-                axisLineWidth = 2f
-                textSize = 10f
-                typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                //granularity = 3f
-                isGranularityEnabled = true
-                valueFormatter = IndexAxisValueFormatter(list.map { it.time.substringAfter("T") })
+            if (!animationCheck) {
+                gun_animasyon = if (getDataFromSharedPref(
+                        this,
+                        "gunesli_shared",
+                        "gunesli_data"
+                    ) != "empty"
+                ) getDataFromSharedPref(
+                    this,
+                    "gunesli_shared",
+                    "gunesli_data"
+                ) else "girllaying.json"
+                yagmur_animasyon = if (getDataFromSharedPref(
+                        this,
+                        "yagmurlu_shared",
+                        "yagmurlu_data"
+                    ) != "empty"
+                ) getDataFromSharedPref(
+                    this,
+                    "yagmurlu_shared",
+                    "yagmurlu_data"
+                ) else "yagmurkadin2.json"
+                bulutlu_animasyon = if (getDataFromSharedPref(
+                        this,
+                        "bulutlu_shared",
+                        "bulutlu_data"
+                    ) != "empty"
+                ) getDataFromSharedPref(
+                    this,
+                    "bulutlu_shared",
+                    "bulutlu_data"
+                ) else "gokkusagi.json"
+                /**/
+                animationCheck = true
             }
+            val switch_value = getDataFromSharedPref(this, "switch_detay", "switch_detay")
+            switch_Detay = if (switch_value == "1" || switch_value == "0") switch_value else "0"
 
-            chart.description.isEnabled = false
+            val rv = binding.saatlik2
 
-            chart.axisLeft.apply {
-                axisLineWidth = 2f
-                textSize = 10f
-                setDrawGridLines(false)
-                typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                granularity = 3f
-
-            }
-
-            chart.legend.apply {
-                isEnabled = true
-                form = Legend.LegendForm.CIRCLE
-                formSize = 10f
-                textSize = 12f
-                typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                textColor = Color.parseColor("#aa000000")
-                verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
-                horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
-                orientation = Legend.LegendOrientation.HORIZONTAL
-                setDrawInside(false)
-            }
-
-            chartHum.legend.apply {
-                isEnabled = true
-                form = Legend.LegendForm.CIRCLE
-                formSize = 10f
-                textSize = 12f
-                typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                textColor = Color.parseColor("#aa000000")
-                verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
-                horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
-                orientation = Legend.LegendOrientation.HORIZONTAL
-                setDrawInside(false)
-            }
-
-            chartBar.legend.apply {
-                isEnabled = true
-                form = Legend.LegendForm.CIRCLE
-                formSize = 10f
-                textSize = 12f
-                typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                textColor = Color.parseColor("#aa000000")
-                verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
-                horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
-                orientation = Legend.LegendOrientation.HORIZONTAL
-                setDrawInside(false)
-            }
-
-            chart.xAxis.setAvoidFirstLastClipping(true)
-
-            combinedLineData.addDataSet(dataSet)
-            combinedLineData.addDataSet(appDataSet)
-
-            chart.data = combinedLineData
-
-            chart.setDragEnabled(true)
-            chart.setScaleEnabled(false)
-            chart.setVisibleXRangeMaximum(8f)
-            chart.moveViewToX(0f)
-
-
-            chartHum.setDragEnabled(true)
-            chartHum.setScaleEnabled(false)
-            chartHum.setVisibleXRangeMaximum(8f)
-            chartHum.moveViewToX(0f)
-
-            chart.axisRight.isEnabled = false
-
-            chart.notifyDataSetChanged()
-
-            chart.invalidate()
-
-        }
-
-        val chartForec = findViewById<LineChart>(R.id.forecastLineChart)
-
-        if(chartForec != null){
-
-            val list = convertHourlyToListForecastChart(weatherData)
-
-            val rainIcon = ContextCompat.getDrawable(this@MainActivity, R.drawable.rain)
-            val sunIcon = ContextCompat.getDrawable(this@MainActivity, R.drawable.sun_74)
-            val offset = 0.1f
-            val entriesMax = list.mapIndexedNotNull { int, item ->
-                val entry = Entry(int.toFloat() + offset, item.max_temp.toFloat())
-                entry
-            }
-
-            val entriesSun = list.mapIndexedNotNull { int, item ->
-                val entry = Entry(int.toFloat() + offset, (item.max_temp.toFloat() + item.min_temp.toFloat()) / 2f)
-                entry.icon = if (item.yagmur == 1) rainIcon else sunIcon
-                entry
-            }
-
-            val entriesMin = list.mapIndexedNotNull { int, item -> Entry(int.toFloat() + offset, item.min_temp.toFloat()) }
-
-            val days = list.map{it.time.substringAfter(",").trim()}
-
-            val dataMax = LineDataSet(entriesMax, "Sıcaklık Max (°C)")
-            val dataMin = LineDataSet(entriesMin, "Sıcaklık Min (°C)")
-            val dataSun = LineDataSet(entriesSun, "")
-
-            dataSun.apply {
-                setDrawValues(false)
-                setDrawCircles(false)
-                setDrawFilled(false)
-                color = Color.parseColor("#ffffff")
-                setDrawIcons(true)
-            }
-
-            val valueFormatter1 = object : ValueFormatter(){
-                override fun getPointLabel(entry: Entry?): String? {
-                    return if (entry?.x == 0f) "" else "${entry?.y?.toInt()}°"
+            if (rv != null) {
+                if (!isRvAttached || switch_Detay_previous != switch_Detay) {
+                    switch_Detay_previous = switch_Detay
+                    if (switch_Detay == "0") {
+                        RV_set_up_hourly(Adapter_hourly1, list)
+                        val tema_renk = getColorFromSharedPref(this)
+                        if (tema_renk != null) {
+                            Adapter_hourly1.backGUpdate(tema_renk)
+                        }
+                    } else {
+                        RV_set_up_hourly_detailed(Adapter_hourly_detailed, list)
+                        val tema_renk = getColorFromSharedPref(this)
+                        if (tema_renk != null) {
+                            Adapter_hourly_detailed.backGUpdate(tema_renk)
+                        }
+                    }
+                    isRvAttached = true
                 }
             }
 
-            dataMax.apply {
-                valueTextSize = 12f
-                isHighlightEnabled = false
-                setDrawCircles(true)
-                setCircleColors(Color.parseColor(getColorFromSharedPref(this@MainActivity) ?: "#aa000000"))
-                lineWidth = 2f
-                circleSize = 4f
-                valueTextColor = Color.parseColor("#aa000000")
-                valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                color = Color.parseColor(getColorFromSharedPref(this@MainActivity) ?: "#aa000000")
-                valueFormatter = valueFormatter1
-            }
 
-            dataMin.apply {
-                valueTextSize = 12f
-                isHighlightEnabled = false
-                setDrawCircles(true)
-                setCircleColors(Color.parseColor("#aa000000"))
-                lineWidth = 2f
-                circleSize = 4f
-                valueTextColor = Color.parseColor("#aa000000")
-                valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                color = Color.parseColor("#77000000")
-                valueFormatter = valueFormatter1
-            }
-
-            chartForec.description.text = ""
-            chartForec.legend.apply{
-                isEnabled = true
-                form = Legend.LegendForm.CIRCLE
-                formSize = 10f
-                textSize = 12f
-                typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                textColor = Color.parseColor("#aa000000")
-                verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
-                horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
-                orientation = Legend.LegendOrientation.HORIZONTAL
-                setDrawInside(false)
-            }
-
-            chartForec.xAxis.apply {
-                valueFormatter = IndexAxisValueFormatter(days)
-                typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                setDrawGridLines(false)
-                textSize = 12f
-            }
-
-            chart.axisLeft.axisMaximum = entriesMax.maxOf { it.y } + 4f
-            chartForec.setExtraOffsets(30f, 0f, 0f, 10f)
-            chartForec.isHighlightPerTapEnabled = false
-
-            chartForec.axisLeft.apply{
-                isEnabled = false
-            }
-
-            chartForec.extraTopOffset = 10f
-            chartForec.setScaleEnabled(false)
-            chartForec.setDragEnabled(true)
-            chartForec.setVisibleXRangeMaximum(3f)
-            chartForec.moveViewToX(0f)
-            chartForec.axisLeft.setDrawGridLines(false)
-            chartForec.xAxis.apply {
-                setDrawGridLines(false)
-                setDrawAxisLine(false)
-            }
-            chartForec.axisRight.apply {
-                isEnabled = false
+            if (!is_forecast_adapter_att) {
+                val rv = binding.forecast
+                val list = convertHourlyToListForecast(weatherData)
+                AdapterForecast.submitList(list)
+                val layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+                rv.adapter = AdapterForecast
+                rv.layoutManager = layoutManager
+                getColorFromSharedPref(this)?.let { AdapterForecast.backGUpdate(it) }
+                is_forecast_adapter_att = true
             }
 
 
-            val dataTemp = LineData()
-            dataTemp.addDataSet(dataMax)
-            dataTemp.addDataSet(dataMin)
-            dataTemp.addDataSet(dataSun)
+            binding.derece.text = "${weatherData.current.temperature_2m.toInt()}°"
+            binding.hissedilen.text =
+                "Hissedilen Sıcaklık : ${weatherData.current.apparent_temperature.toInt()}°"
+            binding.nem.text =
+                "${weatherData.current.relative_humidity_2m}${weatherData.current_units.relative_humidity_2m}"
+            binding.ruzgarHizi.text =
+                "${weatherData.current.wind_speed_10m} ${weatherData.current_units.wind_speed_10m}"
+            binding.ruzgarYonu.text =
+                "${weatherData.current.wind_direction_10m}${weatherData.current_units.wind_direction_10m}"
+            binding.bulutluluk.text =
+                "${weatherData.current.cloud_cover}${weatherData.current_units.cloud_cover}"
+            binding.saganak.text =
+                "${weatherData.current.showers} ${weatherData.current_units.showers}"
+            binding.yagmur.text = "${weatherData.current.rain} ${weatherData.current_units.rain}"
+            binding.kar.text =
+                "${weatherData.current.snowfall} ${weatherData.current_units.snowfall}"
+            binding.basinc.text =
+                "${weatherData.current.surface_pressure} ${weatherData.current_units.surface_pressure}"
 
-            chartForec.data = dataTemp
+            val previous_state = currentState
+            currentState = updateState(weatherData)
 
-            chartForec.notifyDataSetChanged()
-            chartForec.invalidate()
+            val mainAnimation = binding.gun
+
+            if (currentState != previous_state) {
+
+                var mainAnimationName = currentState
+                mainAnimation.setAnimation(mainAnimationName)
+                mainAnimation.playAnimation()
+
+            }
+
+            if (currentState == "gunes.json")
+                mainAnimation.scaleType = ImageView.ScaleType.FIT_CENTER
+            else
+                mainAnimation.scaleType = ImageView.ScaleType.CENTER_CROP
+
+            if (!playitonce) {
+                mainAnimation.setAnimation(currentState)
+                mainAnimation.playAnimation()
+                playitonce = true
+            }
+
+            if (check == 0) {
+                val maxminpair = findMaxMin(list2)
+                findViewById<TextView>(R.id.maxmin).text =
+                    "Max : ${maxminpair.first}°C / Min : ${maxminpair.second}°C"
+                check = 1
+            }
+
 
         }
 
-        if(!animationCheck){
-            gun_animasyon = if(getDataFromSharedPref(this, "gunesli_shared", "gunesli_data") != "empty") getDataFromSharedPref(this, "gunesli_shared", "gunesli_data") else "girllaying.json"
-            yagmur_animasyon = if(getDataFromSharedPref(this, "yagmurlu_shared", "yagmurlu_data") != "empty") getDataFromSharedPref(this, "yagmurlu_shared", "yagmurlu_data") else "yagmurkadin2.json"
-            bulutlu_animasyon = if(getDataFromSharedPref(this, "bulutlu_shared", "bulutlu_data") != "empty") getDataFromSharedPref(this, "bulutlu_shared", "bulutlu_data") else "gokkusagi.json"
-            /**/
-            animationCheck = true
-        }
-        val switch_value = getDataFromSharedPref(this, "switch_detay", "switch_detay")
-        switch_Detay = if(switch_value == "1" || switch_value == "0") switch_value else "0"
+        val hasSeenIntro = getDataFromSharedPref(this, "intro", "intro")
 
-        val rv = findViewById<RecyclerView>(R.id.saatlik2)
-
-        if (rv != null) {
-            if (!isRvAttached || switch_Detay_previous != switch_Detay ) {
-                switch_Detay_previous = switch_Detay
-                if (switch_Detay == "0") {
-                    RV_set_up_hourly(Adapter_hourly1, list)
-                    val tema_renk = getColorFromSharedPref(this)
-                    if (tema_renk != null) {
-                        Adapter_hourly1.backGUpdate(tema_renk)
-                    }
-                } else {
-                    RV_set_up_hourly_detailed(Adapter_hourly_detailed, list)
-                    val tema_renk = getColorFromSharedPref(this)
-                    if (tema_renk != null) {
-                        Adapter_hourly_detailed.backGUpdate(tema_renk)
-                    }
-                }
-                isRvAttached = true
-            }
+        if(hasSeenIntro != "true"){
+            startTour()
         }
 
-
-        if(!is_forecast_adapter_att){
-            val rv = findViewById<RecyclerView>(R.id.forecast)
-            val list = convertHourlyToListForecast(weatherData)
-            AdapterForecast.submitList(list)
-            val layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-            rv.adapter = AdapterForecast
-            rv.layoutManager = layoutManager
-            getColorFromSharedPref(this)?.let { AdapterForecast.backGUpdate(it) }
-            is_forecast_adapter_att = true
-        }
-
-
-        findViewById<TextView>(R.id.derece).text = "${weatherData.current.temperature_2m.toInt()}°"
-        findViewById<TextView>(R.id.hissedilen).text =
-            "Hissedilen Sıcaklık : ${weatherData.current.apparent_temperature.toInt()}°"
-        findViewById<TextView>(R.id.nem).text =
-            "${weatherData.current.relative_humidity_2m}${weatherData.current_units.relative_humidity_2m}"
-        findViewById<TextView>(R.id.ruzgar_hizi).text =
-            "${weatherData.current.wind_speed_10m} ${weatherData.current_units.wind_speed_10m}"
-        findViewById<TextView>(R.id.ruzgar_yonu).text =
-            "${weatherData.current.wind_direction_10m}${weatherData.current_units.wind_direction_10m}"
-        findViewById<TextView>(R.id.bulutluluk).text =
-            "${weatherData.current.cloud_cover}${weatherData.current_units.cloud_cover}"
-        findViewById<TextView>(R.id.saganak).text =
-            "${weatherData.current.showers} ${weatherData.current_units.showers}"
-        findViewById<TextView>(R.id.yagmur).text =
-            "${weatherData.current.rain} ${weatherData.current_units.rain}"
-        findViewById<TextView>(R.id.kar).text = "${weatherData.current.snowfall} ${weatherData.current_units.snowfall}"
-        findViewById<TextView>(R.id.basinc).text = "${weatherData.current.surface_pressure} ${weatherData.current_units.surface_pressure}"
-
-        val previous_state = currentState
-        currentState = updateState(weatherData)
-
-        val mainAnimation = findViewById<LottieAnimationView>(R.id.gun)
-
-        if (currentState != previous_state){
-
-            var mainAnimationName = currentState
-            mainAnimation.setAnimation(mainAnimationName)
-            mainAnimation.playAnimation()
-
-        }
-
-        if(currentState == "gunes.json")
-            mainAnimation.scaleType = ImageView.ScaleType.FIT_CENTER
-        else
-            mainAnimation.scaleType = ImageView.ScaleType.CENTER_CROP
-
-        if(!playitonce){
-            mainAnimation.setAnimation(currentState)
-            mainAnimation.playAnimation()
-            playitonce = true
-        }
-
-        if(check==0) {
-            val maxminpair = findMaxMin(list2)
-            findViewById<TextView>(R.id.maxmin).text = "Max : ${maxminpair.first}°C / Min : ${maxminpair.second}°C"
-            check = 1
-        }
+        return 0
 
     }
 
@@ -801,7 +900,7 @@ class MainActivity : AppCompatActivity() {
         else if(weatherData.current.snowfall > 0){
             kar_animasyon
         }
-        locReqCode{
+        else if (time >= 19 || time < 7){
             gece_animasyon
         }
         else if (weatherData.current.cloud_cover > 90){
@@ -840,26 +939,50 @@ class MainActivity : AppCompatActivity() {
 
             shPair?.let {
                 callback.onLocationReceived(shPair.first, shPair.second)
-                findViewById<TextView>(R.id.districtName).text = "${getAreaName(shPair.first, shPair.second, this).get(0)}, ${getAreaName(shPair.first, shPair.second, this).get(1)}"
-                }
+                binding.districtName.text = "${getAreaName(shPair.first, shPair.second, this).get(0)}, ${getAreaName(shPair.first, shPair.second, this).get(1)}"
+            }
 
             val fusedLocClient = LocationServices.getFusedLocationProviderClient(this)
-            val locationRequest = com.google.android.gms.location.LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 30000).build()
+            val locationRequest = com.google.android.gms.location.LocationRequest.Builder(
+                Priority.PRIORITY_HIGH_ACCURACY,
+                30000
+            ).build()
 
-            val locationCallback = object : com.google.android.gms.location.LocationCallback(){
+            val locationCallback = object : com.google.android.gms.location.LocationCallback() {
                 override fun onLocationResult(p0: LocationResult) {
                     val location = p0.lastLocation
                     location?.let {
-                        saveLocToSharedPref(this@MainActivity, location.latitude, location.longitude)
-                        findViewById<TextView>(R.id.districtName).text = "${getAreaName(location.latitude, location.longitude, this@MainActivity).get(0)}, ${getAreaName(location.latitude, location.longitude, this@MainActivity).get(1)}"
-
+                        saveLocToSharedPref(
+                            this@MainActivity,
+                            location.latitude,
+                            location.longitude
+                        )
+                        device_latitude = location.latitude
+                        device_longitude = location.longitude
+                        binding.districtName.text = "${
+                            getAreaName(
+                                location.latitude,
+                                location.longitude,
+                                this@MainActivity
+                            ).get(0)
+                        }, ${
+                            getAreaName(
+                                location.latitude,
+                                location.longitude,
+                                this@MainActivity
+                            ).get(1)
+                        }"
                         callback.onLocationReceived(location.latitude, location.longitude)
-                        Log.d("locationeren", "Latitude: ${device_latitude}, Longitude $device_longitude")
+                        fusedLocClient.removeLocationUpdates(this)
+                        Log.d(
+                            "locationeren",
+                            "Latitude: ${device_latitude}, Longitude $device_longitude"
+                        )
                     }
                 }
             }
-
             fusedLocClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+
 
         }
         catch (e: SecurityException) {
@@ -880,23 +1003,50 @@ class MainActivity : AppCompatActivity() {
                     if (response.isSuccessful) {
                         val weatherData = response.body()
                         weatherData?.let {
+                            viewModel.setWeatherToRoom(weatherData)
                             updateUI(weatherData)
+                            Log.e("udate ui", "weather data tanım: ${weatherData}")
                         }
                     }
-                    findViewById<SwipeRefreshLayout>(R.id.swipe).isRefreshing = false
+                    binding.swipe.isRefreshing = false
                 }
                 override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
                     Log.e("API_ERROR", "Failed to fetch weather: ${t.message}")
-                    if(internetAlertCheck == false) {
+
+                    if (!internetAlertCheck) {
                         customAlertDisplay(this@MainActivity)
                         internetAlertCheck = true
                     }
-                    findViewById<SwipeRefreshLayout>(R.id.swipe).isRefreshing = false
+
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        try {
+                            Log.d("OFFLINE", "Coroutine started")
+                            val cached = withContext(Dispatchers.IO) {
+                                try {
+                                    viewModel.getWeather()
+                                } catch (e: Exception) {
+                                    Log.e("DB_ERROR", "Error fetching cached weather: ${e.message}")
+                                    null
+                                }
+                            }
+
+                            if (cached != null) {
+                                Log.d("OFFLINE", "Cached data fetched: $cached")
+                                updateUI(cached)
+                            } else {
+                                Log.e("OFFLINE", "No cached weather data found.")
+                            }
+                        } catch (e: Exception) {
+                            Log.e("COROUTINE_ERROR", "Unhandled exception in lifecycleScope: ${e.message}", e)
+                        } finally {
+                            binding.swipe.isRefreshing = false
+                        }
+                    }
+
                 }
+
             })
     }
-
-
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -937,7 +1087,7 @@ class MainActivity : AppCompatActivity() {
     fun RV_set_up_hourly(adapter : AdapterHourly, list : List<HourlyList>){
         val layManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         adapter.submitList(list)
-        val rv = findViewById<RecyclerView>(R.id.saatlik2)
+        val rv = binding.saatlik2
         rv.adapter = null
         rv.adapter = adapter
         rv.layoutManager = layManager
@@ -948,7 +1098,7 @@ class MainActivity : AppCompatActivity() {
 
     fun RV_set_up_hourly_detailed(adapter : AdapterHourlyDetailed, list : List<HourlyList>){
         val layManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        val rv = findViewById<RecyclerView>(R.id.saatlik2)
+        val rv = binding.saatlik2
         rv.adapter = null
         adapter.submitList(list)
         rv.adapter = adapter
@@ -973,10 +1123,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         return list
-    }
-
-    fun returnMaxMin(){
-
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -1096,7 +1242,7 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == 1001 && resultCode == Activity.RESULT_OK) {
-            val mainAnimation = findViewById<LottieAnimationView>(R.id.gun)
+            val mainAnimation = binding.gun
             val selectedColor = getColorFromSharedPref(this) ?: "#7c6fde"
 
             var selected_bulutlu = getDataFromSharedPref(this, "bulutlu_selected", "bulutlu_data")
@@ -1116,6 +1262,7 @@ class MainActivity : AppCompatActivity() {
             val ayar = data?.getStringExtra("ayar")
 
             ayar?.let{
+                uiFlag = true
                 val loc = getLocFromSharedPref(this)
                 if(loc != null){
                     fetchWeatherData(loc.first, loc.second)
@@ -1206,13 +1353,6 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    fun checkLocation(context : Context) : Boolean{
-        val conManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val network = conManager.activeNetwork ?: return false
-        val capabilities = conManager.getNetworkCapabilities(network) ?: return false
-        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-    }
-
     fun customAlertDisplay(context: Context){
         val view = LayoutInflater.from(context).inflate(R.layout.alert_dialog, null)
         val alert = AlertDialog.Builder(context).setView(view).create()
@@ -1223,4 +1363,87 @@ class MainActivity : AppCompatActivity() {
         alert.show()
     }
 
+
+    fun startTour(){
+        binding.root.post {
+
+            TapTargetSequence(this).targets(
+
+                TapTarget.forView(binding.ayarlar, "Ayarlar",ContextCompat.getString(this, R.string.ttAyarlar))
+                    .outerCircleColor(R.color.outerCircle)
+                    .targetCircleColor(R.color.innerCircle)
+                    .cancelable(true)
+                    .descriptionTextColor(R.color.white)
+                    .textColor(R.color.white)
+                    .transparentTarget(true)
+                    .targetRadius(60)
+                    .id(1)
+
+            ).listener(object: TapTargetSequence.Listener{
+                override fun onSequenceFinish() {
+                    saveDataToSharedPRef(this@MainActivity, "intro", "intro", "false")
+                }
+
+                override fun onSequenceStep(
+                    lastTarget: TapTarget?,
+                    targetClicked: Boolean
+                ) {
+                    when(lastTarget?.id()){
+                        1->{
+                            binding.scrollView.post {
+                                binding.scrollView.smoothScrollTo(0, binding.grafikSwitch.top)
+
+                                binding.grafikSwitch.postDelayed({
+                                    TapTargetSequence(this@MainActivity).targets(
+
+                                        TapTarget.forView(binding.grafikSwitch, "Grafik Seçeneği",ContextCompat.getString(this@MainActivity, R.string.ttgrafikSwitch))
+                                            .outerCircleColor(R.color.outerCircle)
+                                            .targetCircleColor(R.color.innerCircle)
+                                            .cancelable(true)
+                                            .descriptionTextColor(R.color.white)
+                                            .textColor(R.color.white)
+                                            .transparentTarget(true)
+                                            .targetRadius(60),
+
+                                        TapTarget.forView(binding.grafikSwitchForecast, "Grafik Seçeneği",ContextCompat.getString(this@MainActivity, R.string.ttgrafikSwitch))
+                                            .outerCircleColor(R.color.outerCircle)
+                                            .targetCircleColor(R.color.innerCircle)
+                                            .cancelable(true)
+                                            .descriptionTextColor(R.color.white)
+                                            .textColor(R.color.white)
+                                            .transparentTarget(true)
+                                            .targetRadius(60)
+                                    ).listener(object: TapTargetSequence.Listener{
+                                        override fun onSequenceFinish() {
+                                            saveDataToSharedPRef(this@MainActivity, "intro", "intro", "false")
+                                        }
+
+                                        override fun onSequenceStep(
+                                            lastTarget: TapTarget?,
+                                            targetClicked: Boolean
+                                        ) {
+
+                                        }
+
+                                        override fun onSequenceCanceled(lastTarget: TapTarget?) {
+
+                                        }
+
+                                    }).start()
+                                }, 500)
+                            }
+                        }
+                    }
+                }
+
+                override fun onSequenceCanceled(lastTarget: TapTarget?) {
+
+                }
+
+            }).start()
+
+            saveDataToSharedPRef(this, "intro", "intro", "true")
+
+        }
+    }
 }

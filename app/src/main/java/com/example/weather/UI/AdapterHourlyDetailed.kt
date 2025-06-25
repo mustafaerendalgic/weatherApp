@@ -71,6 +71,8 @@ class AdapterHourlyDetailed(private var sel_color: String, val ctx : Context, pr
     }
 
     override fun onBindViewHolder(holder: ViewHolderHourlyDetailed, position: Int) {
+        if(font == "empty")
+            font = "annie"
         val item = getItem(position)
         holder.im1.visibility = View.INVISIBLE
         holder.animasyon.visibility = View.VISIBLE

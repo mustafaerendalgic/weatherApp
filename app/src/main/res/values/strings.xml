@@ -2,5 +2,7 @@
     <string name="app_name">weather</string>
     <string name="internettenEminOlun">İnternetinizin ve konumunuzun açık olduğundan emin olun</string>
     <string name="tamam">Tamam</string>
+    <string name="ttgrafikSwitch">Grafik veya Kart görünümleri arasında geçiş yapmak için buraya tıkla!</string>
+    <string name="ttAyarlar">"Tema ve fontu buradan değiştir!</string>
 
 </resources>

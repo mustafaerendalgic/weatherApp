@@ -61,7 +61,7 @@ class AdapterForecast(private var color: String, val ctx: Context, private var f
         var fontid = getFontId(ctx, font)
         fontid?.let {
             for (tv in textViews){
-                if(font == "annie")
+                if(font.trim().lowercase() == "annie")
                     tv.setTypeface(fontid, Typeface.BOLD)
                 else
                     tv.setTypeface(fontid, Typeface.NORMAL)
@@ -70,6 +70,8 @@ class AdapterForecast(private var color: String, val ctx: Context, private var f
     }
 
     override fun onBindViewHolder(holder: forecast_vh, position: Int) {
+        if(font == "empty")
+            font = "annie"
         val item = getItem(position)
         holder.frc_yagmurlu.visibility = View.INVISIBLE
         holder.frc_gunesli.visibility = View.VISIBLE
