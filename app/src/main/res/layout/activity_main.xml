@@ -66,14 +66,15 @@
             <TextView
                 android:id="@+id/districtName"
                 style="@style/subfont"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="35dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:autoSizeMaxTextSize="30sp"
                 android:autoSizeMinTextSize="10sp"
+                android:gravity="center"
                 android:autoSizeTextType="uniform"
                 android:paddingHorizontal="10dp"
-
-
                 android:text=""
                 android:textSize="30sp"
                 app:layout_constraintBottom_toTopOf="@+id/derece"
@@ -296,14 +297,16 @@
 
                         android:layout_marginBottom="12dp">
 
-                        <ImageView
+                        <com.airbnb.lottie.LottieAnimationView
                             android:id="@+id/nemanimasyon"
                             android:layout_width="60dp"
                             android:layout_height="60dp"
                             android:layout_marginStart="4dp"
                             android:layout_marginTop="12dp"
-                            android:background="?attr/colorSurface"
                             android:scaleType="fitCenter"
+                            app:lottie_loop="true"
+                            app:lottie_autoPlay="true"
+                            app:lottie_fileName="humidity.json"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
@@ -351,12 +354,15 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp">
 
-                        <ImageView
+                        <com.airbnb.lottie.LottieAnimationView
                             android:id="@+id/bulutortusu12"
                             android:layout_width="60dp"
                             android:layout_height="60dp"
                             android:layout_marginStart="4dp"
                             android:layout_marginTop="12dp"
+                            app:lottie_loop="true"
+                            app:lottie_autoPlay="true"
+                            app:lottie_fileName="bulutmini.json"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
@@ -417,12 +423,15 @@
                         android:layout_height="match_parent"
                         android:layout_marginBottom="12dp">
 
-                        <ImageView
+                        <com.airbnb.lottie.LottieAnimationView
                             android:id="@+id/ruzgaranimasyon"
                             android:layout_width="60dp"
                             android:layout_height="60dp"
                             android:layout_marginStart="4dp"
                             android:layout_marginTop="12dp"
+                            app:lottie_loop="true"
+                            app:lottie_autoPlay="true"
+                            app:lottie_fileName="ruzgar.json"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
@@ -469,7 +478,7 @@
                         android:layout_height="match_parent"
                         android:layout_marginBottom="18dp">
 
-                        <ImageView
+                        <com.airbnb.lottie.LottieAnimationView
                             android:id="@+id/ruzgaranimasyon2"
                             android:layout_width="60dp"
                             android:layout_height="60dp"
@@ -536,11 +545,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
 
-                        <ImageView
+                        <com.airbnb.lottie.LottieAnimationView
                             android:id="@+id/yagmuranimasyon1"
                             android:layout_width="60dp"
                             android:layout_height="60dp"
                             android:layout_marginStart="4dp"
+                            app:lottie_loop="true"
+                            app:lottie_autoPlay="true"
+                            app:lottie_fileName="rainmini.json"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
@@ -586,7 +598,7 @@
                         android:layout_height="match_parent"
                         android:layout_marginBottom="18dp">
 
-                        <ImageView
+                        <com.airbnb.lottie.LottieAnimationView
                             android:id="@+id/bulutortusu"
                             android:layout_width="60dp"
                             android:layout_height="60dp"
@@ -704,12 +716,15 @@
                         android:layout_height="match_parent"
                         android:layout_marginBottom="18dp">
 
-                        <ImageView
+                        <com.airbnb.lottie.LottieAnimationView
                             android:id="@+id/basincanimasyon"
                             android:layout_width="60dp"
                             android:layout_height="60dp"
                             android:layout_marginStart="18dp"
                             android:layout_marginTop="12dp"
+                            app:lottie_loop="true"
+                            app:lottie_autoPlay="true"
+                            app:lottie_fileName="metre.json"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />

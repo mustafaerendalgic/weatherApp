@@ -37,7 +37,12 @@ import com.example.weather.UI.AdapterForecast
 import com.example.weather.UI.AdapterHourly
 import com.example.weather.UI.AdapterHourlyDetailed
 import com.example.weather.data.DailyForecast
+import com.example.weather.data.DetayChartInfo
 import com.example.weather.data.ForecastChart
+import com.example.weather.data.GunlukDataSet
+import com.example.weather.data.GunlukTempChartEntry
+import com.example.weather.data.HaftalikDataSet
+import com.example.weather.data.HaftalikEntry
 import com.example.weather.data.HourlyList
 import com.example.weather.data.WeatherResponse
 import com.example.weather.databinding.ActivityMainBinding
@@ -72,7 +77,9 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
 
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -127,14 +134,6 @@ class MainActivity : AppCompatActivity() {
 
         checkLocPerm()
 
-        Glide.with(this).asGif().load(R.drawable.nem).into(binding.nemanimasyon)
-        Glide.with(this).asGif().load(R.drawable.bulutmini).into(binding.bulutortusu12)
-        Glide.with(this).asGif().load(R.drawable.ruzgar).into(binding.ruzgaranimasyon)
-        Glide.with(this).asGif().load(R.drawable.ruzgar).into(binding.ruzgaranimasyon2)
-        Glide.with(this).asGif().load(R.drawable.rainmini).into(binding.yagmuranimasyon1)
-        Glide.with(this).asGif().load(R.drawable.rainmini).into(binding.bulutortusu)
-        Glide.with(this).asGif().load(R.drawable.metre).into(binding.basincanimasyon)
-
         val chart = binding.saatlikChart
         val chartForecast = binding.forecastLineChart
         val grafikSwitch = binding.grafikSwitch
@@ -150,7 +149,6 @@ class MainActivity : AppCompatActivity() {
         val rv_forecast = binding.forecast
 
         binding.grafikSwitchForecast.setOnClickListener {
-
             if (binding.grafikSwitchForecast.isChecked == false) {
                 binding.forecastLineChart.animate().setDuration(1000)
                     .translationX(-resources.displayMetrics.widthPixels.toFloat())
@@ -278,12 +276,17 @@ class MainActivity : AppCompatActivity() {
 
         val loc = getLocFromSharedPref(this)
         loc?.let{
-            fetchWeatherData(loc.first, loc.second)
+            lifecycleScope.launch {
+                fetchWeatherData(it.first, it.second)
+            }
         }
 
     }
 
     fun updateUI(weatherData : WeatherResponse): Int {
+
+        val list = convertHourlyToList(weatherData) // olduğumuz saatten başlar
+        val list2 = convertHourlyToList(weatherData, 1)
 
         if (device_latitude == null || device_longitude == null) {
             Log.d("locationeren", "Location is null, skipping updateUI")
@@ -311,422 +314,6 @@ class MainActivity : AppCompatActivity() {
                             fetchWeatherData(latitude, longitude)
                     }
                 })
-
-            }
-
-            val list = convertHourlyToList(weatherData)
-            val list2 = convertHourlyToList(weatherData, 1)
-
-            var chart = binding.saatlikChartLine
-            var chartBar = binding.saatlikChartBar
-            var chartHum = binding.saatlikHumChartLine
-
-            if (chart != null) {
-                val entries = list.mapIndexedNotNull { int, list1 ->
-                    Entry(int.toFloat(), list1.temperature_2m.toFloat())
-                }
-
-                val entriesApp = list.mapIndexedNotNull { int, list1 ->
-                    Entry(int.toFloat(), list1.apparent_temperature.toFloat())
-                }
-                val detay = getDataFromSharedPref(this, "switch_detay", "switch_detay")
-
-                val dataSet = LineDataSet(entries, "Sıcaklık (°C)")
-
-                val combinedLineData = LineData()
-
-                val combinedBarData = BarData()
-
-                val valueformatter = object : ValueFormatter() {
-                    override fun getPointLabel(entry: Entry?): String? {
-                        return if (entry?.x == 0f) "" else "${entry?.y?.toInt()}°"
-                    }
-                }
-
-                val valueformatterHum = object : ValueFormatter() {
-                    override fun getPointLabel(entry: Entry?): String? {
-                        return if (entry?.x == 0f) "" else "${entry?.y?.toInt()}%"
-                    }
-                }
-
-                val alpha = 80
-
-                dataSet.apply {
-                    fillAlpha = alpha
-                    color =
-                        Color.parseColor(getColorFromSharedPref(this@MainActivity) ?: "#aa000000")
-                    lineWidth = 2f
-                    mode = LineDataSet.Mode.CUBIC_BEZIER
-                    setDrawCircles(false)
-                    valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                    valueTextColor = Color.parseColor("#aa000000")
-                    valueFormatter = valueformatter
-                    valueTextSize = 12f
-                }
-
-                val appDataSet = LineDataSet(entriesApp, "Hissedilen Sıcaklık (°C)").apply {
-                    setDrawValues(false)
-                    fillAlpha = alpha
-                    color = Color.parseColor("#6ec29a")
-                    lineWidth = 2f
-                    mode = LineDataSet.Mode.CUBIC_BEZIER
-                    setDrawCircles(false)
-                    valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                    valueTextColor = Color.parseColor("#aa000000")
-                    valueFormatter = valueformatter
-                    valueTextSize = 12f
-                }
-
-                if (detay == "1") {
-
-                    chartBar.visibility = View.VISIBLE
-                    chartHum.visibility = View.VISIBLE
-
-                    val entriesHum = list.mapIndexedNotNull { int, list1 ->
-                        Entry(int.toFloat(), list1.relative_humidity_2m.toFloat())
-                    }
-
-                    val entriesWind = list.mapIndexedNotNull { int, list1 ->
-                        BarEntry(int.toFloat(), list1.wind_speed_10m.toFloat())
-                    }
-
-                    val ruzHizDataSet = BarDataSet(entriesWind, "Rüzgar Hızı (km/h)").apply {
-
-                        valueTextSize = 12f
-                        color = Color.parseColor("#6ec29a")
-                        valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                        valueTextColor = Color.parseColor("#aa000000")
-                        isHighlightEnabled = false
-                    }
-
-                    combinedBarData.barWidth = 0.4f
-
-                    val nemDataSet = LineDataSet(entriesHum, "Nem (%)").apply {
-                        fillAlpha = alpha
-                        valueTextSize = 12f
-                        color = Color.parseColor("#6ec29a")
-                        lineWidth = 2f
-                        mode = LineDataSet.Mode.CUBIC_BEZIER
-                        setDrawCircles(false)
-                        valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                        valueTextColor = Color.parseColor("#aa000000")
-                        valueFormatter = valueformatterHum
-                        isHighlightEnabled = false
-                    }
-
-                    chartBar.xAxis.apply {
-                        axisLineColor = Color.parseColor(getColorFromSharedPref(this@MainActivity))
-                        axisLineWidth = 2f
-                        textSize = 10f
-                        typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                        //granularity = 3f
-                        isGranularityEnabled = true
-                        valueFormatter =
-                            IndexAxisValueFormatter(list.map { it.time.substringAfter("T") })
-                    }
-
-                    chartBar.axisLeft.apply {
-                        /*setDrawAxisLine(true)
-                        axisLineWidth = 2f
-                        textSize = 10f
-                        typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)*/
-                        //granularity = 2f
-                    }
-
-                    chartBar.axisRight.setDrawGridLines(false)
-                    chartBar.axisLeft.setDrawGridLines(false)
-                    chartBar.xAxis.setDrawGridLines(false)
-
-                    chartHum.xAxis.apply {
-                        axisLineColor = Color.parseColor(getColorFromSharedPref(this@MainActivity))
-                        axisLineWidth = 2f
-                        textSize = 10f
-                        typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                        //granularity = 2f
-                        isGranularityEnabled = true
-                        valueFormatter =
-                            IndexAxisValueFormatter(list.map { it.time.substringAfter("T") })
-                    }
-
-                    chartHum.axisLeft.apply {
-
-                        setDrawAxisLine(true)
-                        axisLineWidth = 2f
-                        textSize = 10f
-                        typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                        granularity = 2f
-                    }
-
-                    chartHum.axisRight.setDrawGridLines(false)
-                    chartHum.axisLeft.setDrawGridLines(false)
-                    chartHum.xAxis.setDrawGridLines(false)
-
-                    chartHum.axisRight.setDrawAxisLine(false)
-                    chartBar.axisRight.setDrawAxisLine(false)
-                    chartHum.axisRight.setDrawLabels(false)
-                    chartBar.axisRight.setDrawLabels(false)
-
-                    chart.axisLeft.axisMaximum =
-                        maxOf(entries.maxOf { it.y }, entriesApp.maxOf { it.y }) + 6f
-                    chartHum.axisLeft.axisMaximum = entriesHum.maxOf { it.y } + 10f
-                    chartBar.axisLeft.axisMaximum = entriesWind.maxOf { it.y } + 4f
-
-                    chartHum.description.text = ""
-                    chartBar.description.text = ""
-
-                    val humData = LineData(nemDataSet)
-
-                    chartHum.data = humData
-
-                    combinedBarData.addDataSet(ruzHizDataSet)
-
-                    chartBar.data = combinedBarData
-
-                    chartBar.setDragEnabled(true)
-                    chartBar.setScaleEnabled(false)
-                    chartBar.setVisibleXRangeMaximum(8f)
-                    chartBar.moveViewToX(-1f)
-
-                    chartHum.setDragEnabled(true)
-                    chartHum.setScaleEnabled(false)
-                    chartHum.setVisibleXRangeMaximum(8f)
-                    chartHum.moveViewToX(0f)
-
-
-
-                    chartBar.data.notifyDataChanged()
-                    chartBar.notifyDataSetChanged()
-                    chartHum.notifyDataSetChanged()
-                    chartBar.invalidate()
-                    chartHum.invalidate()
-
-                } else {
-                    chartBar.visibility = View.GONE
-                    chartHum.visibility = View.GONE
-                }
-
-                chart.xAxis.apply {
-                    setDrawGridLines(false)
-                    axisLineColor = Color.parseColor(getColorFromSharedPref(this@MainActivity))
-                    axisLineWidth = 2f
-                    textSize = 10f
-                    typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                    //granularity = 3f
-                    isGranularityEnabled = true
-                    valueFormatter =
-                        IndexAxisValueFormatter(list.map { it.time.substringAfter("T") })
-                }
-
-                chart.description.isEnabled = false
-
-                chart.axisLeft.apply {
-                    axisLineWidth = 2f
-                    textSize = 10f
-                    setDrawGridLines(false)
-                    typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                    granularity = 3f
-
-                }
-
-                chart.legend.apply {
-                    isEnabled = true
-                    form = Legend.LegendForm.CIRCLE
-                    formSize = 10f
-                    textSize = 12f
-                    typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                    textColor = Color.parseColor("#aa000000")
-                    verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
-                    horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
-                    orientation = Legend.LegendOrientation.HORIZONTAL
-                    setDrawInside(false)
-                }
-
-                chartHum.legend.apply {
-                    isEnabled = true
-                    form = Legend.LegendForm.CIRCLE
-                    formSize = 10f
-                    textSize = 12f
-                    typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                    textColor = Color.parseColor("#aa000000")
-                    verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
-                    horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
-                    orientation = Legend.LegendOrientation.HORIZONTAL
-                    setDrawInside(false)
-                }
-
-                chartBar.legend.apply {
-                    isEnabled = true
-                    form = Legend.LegendForm.CIRCLE
-                    formSize = 10f
-                    textSize = 12f
-                    typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                    textColor = Color.parseColor("#aa000000")
-                    verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
-                    horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
-                    orientation = Legend.LegendOrientation.HORIZONTAL
-                    setDrawInside(false)
-                }
-
-                chart.xAxis.setAvoidFirstLastClipping(true)
-
-                combinedLineData.addDataSet(dataSet)
-                combinedLineData.addDataSet(appDataSet)
-
-                chart.data = combinedLineData
-
-                chart.setDragEnabled(true)
-                chart.setScaleEnabled(false)
-                chart.setVisibleXRangeMaximum(8f)
-                chart.moveViewToX(0f)
-
-
-                chartHum.setDragEnabled(true)
-                chartHum.setScaleEnabled(false)
-                chartHum.setVisibleXRangeMaximum(8f)
-                chartHum.moveViewToX(0f)
-
-                chart.axisRight.isEnabled = false
-
-                chart.notifyDataSetChanged()
-
-                chart.invalidate()
-
-            }
-
-            val chartForec = binding.forecastLineChart
-
-            if (chartForec != null) {
-
-                val list = convertHourlyToListForecastChart(weatherData)
-
-                val rainIcon = ContextCompat.getDrawable(this@MainActivity, R.drawable.rain)
-                val sunIcon = ContextCompat.getDrawable(this@MainActivity, R.drawable.sun_74)
-                val offset = 0.1f
-                val entriesMax = list.mapIndexedNotNull { int, item ->
-                    val entry = Entry(int.toFloat() + offset, item.max_temp.toFloat())
-                    entry
-                }
-
-                val entriesSun = list.mapIndexedNotNull { int, item ->
-                    val entry = Entry(
-                        int.toFloat() + offset,
-                        (item.max_temp.toFloat() + item.min_temp.toFloat()) / 2f
-                    )
-                    entry.icon = if (item.yagmur == 1) rainIcon else sunIcon
-                    entry
-                }
-
-                val entriesMin = list.mapIndexedNotNull { int, item ->
-                    Entry(
-                        int.toFloat() + offset,
-                        item.min_temp.toFloat()
-                    )
-                }
-
-                val days = list.map { it.time.substringAfter(",").trim() }
-
-                val dataMax = LineDataSet(entriesMax, "Sıcaklık Max (°C)")
-                val dataMin = LineDataSet(entriesMin, "Sıcaklık Min (°C)")
-                val dataSun = LineDataSet(entriesSun, "")
-
-                dataSun.apply {
-                    setDrawValues(false)
-                    setDrawCircles(false)
-                    setDrawFilled(false)
-                    color = Color.parseColor("#ffffff")
-                    setDrawIcons(true)
-                }
-
-                val valueFormatter1 = object : ValueFormatter() {
-                    override fun getPointLabel(entry: Entry?): String? {
-                        return if (entry?.x == 0f) "" else "${entry?.y?.toInt()}°"
-                    }
-                }
-
-                dataMax.apply {
-                    valueTextSize = 12f
-                    isHighlightEnabled = false
-                    setDrawCircles(true)
-                    setCircleColors(
-                        Color.parseColor(
-                            getColorFromSharedPref(this@MainActivity) ?: "#aa000000"
-                        )
-                    )
-                    lineWidth = 2f
-                    circleSize = 4f
-                    valueTextColor = Color.parseColor("#aa000000")
-                    valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                    color =
-                        Color.parseColor(getColorFromSharedPref(this@MainActivity) ?: "#aa000000")
-                    valueFormatter = valueFormatter1
-                }
-
-                dataMin.apply {
-                    valueTextSize = 12f
-                    isHighlightEnabled = false
-                    setDrawCircles(true)
-                    setCircleColors(Color.parseColor("#aa000000"))
-                    lineWidth = 2f
-                    circleSize = 4f
-                    valueTextColor = Color.parseColor("#aa000000")
-                    valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                    color = Color.parseColor("#77000000")
-                    valueFormatter = valueFormatter1
-                }
-
-                chartForec.description.text = ""
-                chartForec.legend.apply {
-                    isEnabled = true
-                    form = Legend.LegendForm.CIRCLE
-                    formSize = 10f
-                    textSize = 12f
-                    typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                    textColor = Color.parseColor("#aa000000")
-                    verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
-                    horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
-                    orientation = Legend.LegendOrientation.HORIZONTAL
-                    setDrawInside(false)
-                }
-
-                chartForec.xAxis.apply {
-                    valueFormatter = IndexAxisValueFormatter(days)
-                    typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                    setDrawGridLines(false)
-                    textSize = 12f
-                }
-
-                chart.axisLeft.axisMaximum = entriesMax.maxOf { it.y } + 4f
-                chartForec.setExtraOffsets(30f, 0f, 0f, 10f)
-                chartForec.isHighlightPerTapEnabled = false
-
-                chartForec.axisLeft.apply {
-                    isEnabled = false
-                }
-
-                chartForec.extraTopOffset = 10f
-                chartForec.setScaleEnabled(false)
-                chartForec.setDragEnabled(true)
-                chartForec.setVisibleXRangeMaximum(3f)
-                chartForec.moveViewToX(0f)
-                chartForec.axisLeft.setDrawGridLines(false)
-                chartForec.xAxis.apply {
-                    setDrawGridLines(false)
-                    setDrawAxisLine(false)
-                }
-                chartForec.axisRight.apply {
-                    isEnabled = false
-                }
-
-
-                val dataTemp = LineData()
-                dataTemp.addDataSet(dataMax)
-                dataTemp.addDataSet(dataMin)
-                dataTemp.addDataSet(dataSun)
-
-                chartForec.data = dataTemp
-
-                chartForec.notifyDataSetChanged()
-                chartForec.invalidate()
 
             }
 
@@ -786,6 +373,7 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                     isRvAttached = true
+                    switch_Detay_previous = switch_Detay
                 }
             }
 
@@ -861,32 +449,449 @@ class MainActivity : AppCompatActivity() {
             startTour()
         }
 
+        lifecycleScope.launch(Dispatchers.IO) {
+
+            val entries = list.mapIndexedNotNull { int, list1 ->
+                Entry(int.toFloat(), list1.temperature_2m.toFloat())
+            }
+
+            val entriesApp = list.mapIndexedNotNull { int, list1 ->
+                Entry(int.toFloat(), list1.apparent_temperature.toFloat())
+            }
+
+            val entriesHum = list.mapIndexedNotNull { int, list1 ->
+                Entry(int.toFloat(), list1.relative_humidity_2m.toFloat())
+            }
+
+            val entriesWind = list.mapIndexedNotNull { int, list1 ->
+                BarEntry(int.toFloat(), list1.wind_speed_10m.toFloat())
+            }
+
+
+            val valueformatter = object : ValueFormatter() {
+                override fun getPointLabel(entry: Entry?): String? {
+                    return if (entry?.x == 0f) "" else "${entry?.y?.toInt()}°"
+                }
+            }
+
+            val valueformatterHum = object : ValueFormatter() {
+                override fun getPointLabel(entry: Entry?): String? {
+                    return if (entry?.x == 0f) "" else "${entry?.y?.toInt()}%"
+                }
+            }
+
+            val alpha = 80
+
+            val gunlukTempChartEntry = GunlukTempChartEntry(entries, entriesApp)
+            val detayChartInfo = DetayChartInfo(entriesWind, entriesHum)
+            val dataSets = GunlukDataSet(
+                LineDataSet(entries, "Sıcaklık (°C)").apply {
+                fillAlpha = alpha
+                color =
+                    Color.parseColor(getColorFromSharedPref(this@MainActivity) ?: "#aa000000")
+                lineWidth = 2f
+                mode = LineDataSet.Mode.CUBIC_BEZIER
+                setDrawCircles(false)
+                valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                valueTextColor = Color.parseColor("#aa000000")
+                valueFormatter = valueformatter
+                valueTextSize = 12f
+                },
+                LineDataSet(entriesApp, "Hissedilen Sıcaklık (°C)").apply {
+                    setDrawValues(false)
+                    fillAlpha = alpha
+                    color = Color.parseColor("#6ec29a")
+                    lineWidth = 2f
+                    mode = LineDataSet.Mode.CUBIC_BEZIER
+                    setDrawCircles(false)
+                    valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                    valueTextColor = Color.parseColor("#aa000000")
+                    valueFormatter = valueformatter
+                    valueTextSize = 12f
+                },
+                LineDataSet(entriesHum, "Nem (%)").apply {
+                    fillAlpha = alpha
+                    valueTextSize = 12f
+                    color = Color.parseColor("#6ec29a")
+                    lineWidth = 2f
+                    mode = LineDataSet.Mode.CUBIC_BEZIER
+                    setDrawCircles(false)
+                    valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                    valueTextColor = Color.parseColor("#aa000000")
+                    valueFormatter = valueformatterHum
+                    isHighlightEnabled = false
+                },
+                BarDataSet(entriesWind, "Rüzgar Hızı (km/h)").apply {
+
+                    valueTextSize = 12f
+                    color = Color.parseColor("#6ec29a")
+                    valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                    valueTextColor = Color.parseColor("#aa000000")
+                    isHighlightEnabled = false
+                }
+                )
+
+            val listForForecastChart = convertHourlyToListForecastChart(weatherData)
+
+            val rainIcon = ContextCompat.getDrawable(this@MainActivity, R.drawable.rain)
+            val sunIcon = ContextCompat.getDrawable(this@MainActivity, R.drawable.sun_74)
+            val offset = 0.1f
+
+            val entriesMax = listForForecastChart.mapIndexedNotNull { int, item ->
+                val entry = Entry(int.toFloat() + offset, item.max_temp.toFloat())
+                entry
+            }
+
+            val entriesSun = listForForecastChart.mapIndexedNotNull { int, item ->
+                val entry = Entry(
+                    int.toFloat() + offset,
+                    (item.max_temp.toFloat() + item.min_temp.toFloat()) / 2f
+                )
+                entry.icon = if (item.yagmur == 1) rainIcon else sunIcon
+                entry
+            }
+
+            val entriesMin = listForForecastChart.mapIndexedNotNull { int, item ->
+                Entry(
+                    int.toFloat() + offset,
+                    item.min_temp.toFloat()
+                )
+            }
+
+            val valueFormatter1 = object : ValueFormatter() {
+                override fun getPointLabel(entry: Entry?): String? {
+                    return if (entry?.x == 0f) "" else "${entry?.y?.toInt()}°"
+                }
+            }
+
+            val dataMax = LineDataSet(entriesMax, "Sıcaklık Max (°C)").apply {
+                valueTextSize = 12f
+                isHighlightEnabled = false
+                setDrawCircles(true)
+                setCircleColors(
+                    Color.parseColor(
+                        getColorFromSharedPref(this@MainActivity) ?: "#aa000000"
+                    )
+                )
+                lineWidth = 2f
+                circleSize = 4f
+                valueTextColor = Color.parseColor("#aa000000")
+                valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                color =
+                    Color.parseColor(getColorFromSharedPref(this@MainActivity) ?: "#aa000000")
+                valueFormatter = valueFormatter1
+            }
+
+            val dataMin = LineDataSet(entriesMin, "Sıcaklık Min (°C)").apply {
+                valueTextSize = 12f
+                isHighlightEnabled = false
+                setDrawCircles(true)
+                setCircleColors(Color.parseColor("#aa000000"))
+                lineWidth = 2f
+                circleSize = 4f
+                valueTextColor = Color.parseColor("#aa000000")
+                valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                color = Color.parseColor("#77000000")
+                valueFormatter = valueFormatter1
+            }
+
+            val dataSun = LineDataSet(entriesSun, "").apply {
+                setDrawValues(false)
+                setDrawCircles(false)
+                setDrawFilled(false)
+                color = Color.parseColor("#ffffff")
+                setDrawIcons(true)
+            }
+
+            val haftalikDataSet = HaftalikDataSet(dataMax, dataMin, dataSun)
+            val haftalikEntry = HaftalikEntry(entriesMax, entriesMin, entriesSun)
+
+            withContext(Dispatchers.Main) {
+                updateCharts(weatherData, list, gunlukTempChartEntry, detayChartInfo, dataSets, haftalikDataSet, haftalikEntry)
+            }
+        }
+
         return 0
 
     }
 
-    fun getLocalTime() : String {
-        val calendar = Calendar.getInstance()
-        val formatter = SimpleDateFormat("HH:mm", Locale.getDefault())
-        return formatter.format(calendar.time)
-    }
+    fun updateCharts(weatherData: WeatherResponse, list : List<HourlyList>, gunlukInfo: GunlukTempChartEntry, detay: DetayChartInfo, dataSetGunluk: GunlukDataSet, haftalikDataSet: HaftalikDataSet, haftalikEntry: HaftalikEntry){
 
-    fun findMaxMin(list : List<HourlyList>) : Pair<Int?, Int?>{
-        var max : Int? = null
-        var min : Int? = null
-        for (i in list){
-            if(max == null || min == null){
-                if(max == null)
-                    max = i.temperature_2m
-                if(min == null)
-                    min = i.temperature_2m
+        var chart = binding.saatlikChartLine
+        var chartBar = binding.saatlikChartBar
+        var chartHum = binding.saatlikHumChartLine
+
+        if (chart != null) {
+
+            val entries = gunlukInfo.Temp
+            val entriesApp = gunlukInfo.TempApp
+            val entriesWind = detay.ruzgarBar
+            val entriesHum = detay.nemEntry
+
+            val dataSet = dataSetGunluk.dataSet
+            val ruzHizDataSet = dataSetGunluk.windDataSet
+            val nemDataSet = dataSetGunluk.humDataSet
+            val appDataSet = dataSetGunluk.appDataSet
+
+            val combinedLineData = LineData()
+
+            val combinedBarData = BarData()
+
+            val detay = getDataFromSharedPref(this, "switch_detay", "switch_detay")
+
+            val saatEtiketleri = list.map { it.time.substringAfter("T") }
+
+            if (detay == "1") {
+
+                chartBar.visibility = View.VISIBLE
+                chartHum.visibility = View.VISIBLE
+
+                combinedBarData.barWidth = 0.4f
+
+                chartBar.xAxis.apply {
+                    axisLineColor = Color.parseColor(getColorFromSharedPref(this@MainActivity))
+                    axisLineWidth = 2f
+                    textSize = 10f
+                    typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                    //granularity = 3f
+                    isGranularityEnabled = true
+                    valueFormatter =
+                        IndexAxisValueFormatter(saatEtiketleri)
+                }
+
+                chartBar.axisLeft.apply {
+                    /*setDrawAxisLine(true)
+                    axisLineWidth = 2f
+                    textSize = 10f
+                    typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)*/
+                    //granularity = 2f
+                }
+
+                chartBar.axisRight.setDrawGridLines(false)
+                chartBar.axisLeft.setDrawGridLines(false)
+                chartBar.xAxis.setDrawGridLines(false)
+
+                chartHum.xAxis.apply {
+                    axisLineColor = Color.parseColor(getColorFromSharedPref(this@MainActivity))
+                    axisLineWidth = 2f
+                    textSize = 10f
+                    typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                    //granularity = 2f
+                    isGranularityEnabled = true
+                    valueFormatter =
+                        IndexAxisValueFormatter(saatEtiketleri)
+                }
+
+                chartHum.axisLeft.apply {
+
+                    setDrawAxisLine(true)
+                    axisLineWidth = 2f
+                    textSize = 10f
+                    typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                    granularity = 2f
+                }
+
+                chartHum.axisRight.setDrawGridLines(false)
+                chartHum.axisLeft.setDrawGridLines(false)
+                chartHum.xAxis.setDrawGridLines(false)
+
+                chartHum.axisRight.setDrawAxisLine(false)
+                chartBar.axisRight.setDrawAxisLine(false)
+                chartHum.axisRight.setDrawLabels(false)
+                chartBar.axisRight.setDrawLabels(false)
+
+                chart.axisLeft.axisMaximum = maxOf(entries.maxOf { it.y }, entriesApp.maxOf { it.y }) + 6f
+                chartHum.axisLeft.axisMaximum = entriesHum.maxOf { it.y } + 10f
+                chartBar.axisLeft.axisMaximum = entriesWind.maxOf { it.y } + 4f
+
+                chartHum.description.text = ""
+                chartBar.description.text = ""
+
+                val humData = LineData(nemDataSet)
+
+                chartHum.data = humData
+
+                combinedBarData.addDataSet(ruzHizDataSet)
+
+                chartBar.data = combinedBarData
+
+                chartBar.setDragEnabled(true)
+                chartBar.setScaleEnabled(false)
+                chartBar.setVisibleXRangeMaximum(8f)
+                chartBar.moveViewToX(-1f)
+
+                chartHum.setDragEnabled(true)
+                chartHum.setScaleEnabled(false)
+                chartHum.setVisibleXRangeMaximum(8f)
+                chartHum.moveViewToX(0f)
+
+
+
+                chartBar.data.notifyDataChanged()
+                chartBar.notifyDataSetChanged()
+                chartHum.notifyDataSetChanged()
+
+
+            } else {
+                chartBar.visibility = View.GONE
+                chartHum.visibility = View.GONE
             }
-            if(i.temperature_2m > max)
-                max = i.temperature_2m
-            if (i.temperature_2m < min)
-                min = i.temperature_2m
+
+            chart.xAxis.apply {
+                setDrawGridLines(false)
+                axisLineColor = Color.parseColor(getColorFromSharedPref(this@MainActivity))
+                axisLineWidth = 2f
+                textSize = 10f
+                typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                //granularity = 3f
+                isGranularityEnabled = true
+                valueFormatter =
+                    IndexAxisValueFormatter(saatEtiketleri)
+            }
+
+            chart.description.isEnabled = false
+
+            chart.axisLeft.apply {
+                axisLineWidth = 2f
+                textSize = 10f
+                setDrawGridLines(false)
+                typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                granularity = 3f
+
+            }
+
+            chart.legend.apply {
+                isEnabled = true
+                form = Legend.LegendForm.CIRCLE
+                formSize = 10f
+                textSize = 12f
+                typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                textColor = Color.parseColor("#aa000000")
+                verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+                horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
+                orientation = Legend.LegendOrientation.HORIZONTAL
+                setDrawInside(false)
+            }
+
+            chartHum.legend.apply {
+                isEnabled = true
+                form = Legend.LegendForm.CIRCLE
+                formSize = 10f
+                textSize = 12f
+                typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                textColor = Color.parseColor("#aa000000")
+                verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+                horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
+                orientation = Legend.LegendOrientation.HORIZONTAL
+                setDrawInside(false)
+            }
+
+            chartBar.legend.apply {
+                isEnabled = true
+                form = Legend.LegendForm.CIRCLE
+                formSize = 10f
+                textSize = 12f
+                typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                textColor = Color.parseColor("#aa000000")
+                verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+                horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
+                orientation = Legend.LegendOrientation.HORIZONTAL
+                setDrawInside(false)
+            }
+
+            chart.xAxis.setAvoidFirstLastClipping(true)
+
+            combinedLineData.addDataSet(dataSet)
+            combinedLineData.addDataSet(appDataSet)
+
+            chart.data = combinedLineData
+
+            chart.setDragEnabled(true)
+            chart.setScaleEnabled(false)
+            chart.setVisibleXRangeMaximum(8f)
+            chart.moveViewToX(0f)
+
+
+            chartHum.setDragEnabled(true)
+            chartHum.setScaleEnabled(false)
+            chartHum.setVisibleXRangeMaximum(8f)
+            chartHum.moveViewToX(0f)
+
+            chart.axisRight.isEnabled = false
+
+            chart.notifyDataSetChanged()
+
+            chart.invalidate()
+            chartBar.invalidate()
+            chartHum.invalidate()
+
         }
-        return Pair(max,min)
+
+        val chartForec = binding.forecastLineChart
+
+        if (chartForec != null) {
+
+            val days = convertHourlyToListForecastChart(weatherData).map { it.time.substringAfter(",").trim() }
+
+            val entriesMax = haftalikEntry.tempMax
+            val dataMin = haftalikDataSet.tempMin
+            val dataMax = haftalikDataSet.tempMax
+            val dataSun = haftalikDataSet.dataSun
+
+            chartForec.description.text = ""
+            chartForec.legend.apply {
+                isEnabled = true
+                form = Legend.LegendForm.CIRCLE
+                formSize = 10f
+                textSize = 12f
+                typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                textColor = Color.parseColor("#aa000000")
+                verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+                horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
+                orientation = Legend.LegendOrientation.HORIZONTAL
+                setDrawInside(false)
+            }
+
+            chartForec.xAxis.apply {
+                valueFormatter = IndexAxisValueFormatter(days)
+                typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
+                setDrawGridLines(false)
+                textSize = 12f
+            }
+
+            chartForec.setExtraOffsets(30f, 0f, 0f, 10f)
+            chartForec.isHighlightPerTapEnabled = false
+
+            chartForec.axisLeft.apply {
+                isEnabled = false
+            }
+
+            chartForec.extraTopOffset = 10f
+            chartForec.setScaleEnabled(false)
+            chartForec.setDragEnabled(true)
+            chartForec.setVisibleXRangeMaximum(3f)
+            chartForec.moveViewToX(0f)
+            chartForec.axisLeft.setDrawGridLines(false)
+            chartForec.xAxis.apply {
+                setDrawGridLines(false)
+                setDrawAxisLine(false)
+            }
+            chartForec.axisRight.apply {
+                isEnabled = false
+            }
+
+
+            val dataTemp = LineData()
+            dataTemp.addDataSet(dataMax)
+            dataTemp.addDataSet(dataMin)
+            dataTemp.addDataSet(dataSun)
+
+            chartForec.data = dataTemp
+
+            chartForec.notifyDataSetChanged()
+            chartForec.invalidate()
+
+        }
     }
 
     fun updateState(weatherData: WeatherResponse) : String{
@@ -920,6 +925,7 @@ class MainActivity : AppCompatActivity() {
         else{
             getUserLoc(object : LocationCallback {
                 override fun onLocationReceived(latitude: Double, longitude: Double) {
+                    uiFlag = false
                     fetchWeatherData(latitude, longitude)
                 }
             })
@@ -939,9 +945,12 @@ class MainActivity : AppCompatActivity() {
             shPair?.let {
                 callback.onLocationReceived(shPair.first, shPair.second)
                 binding.districtName.text = "${getAreaName(shPair.first, shPair.second, this).get(0)}, ${getAreaName(shPair.first, shPair.second, this).get(1)}"
+                device_latitude = it.first
+                device_longitude = it.second
             }
 
             val fusedLocClient = LocationServices.getFusedLocationProviderClient(this)
+
             val locationRequest = com.google.android.gms.location.LocationRequest.Builder(
                 Priority.PRIORITY_HIGH_ACCURACY,
                 30000
@@ -951,6 +960,7 @@ class MainActivity : AppCompatActivity() {
                 override fun onLocationResult(p0: LocationResult) {
                     val location = p0.lastLocation
                     location?.let {
+                        callback.onLocationReceived(location.latitude, location.longitude)
                         saveLocToSharedPref(
                             this@MainActivity,
                             location.latitude,
@@ -971,7 +981,6 @@ class MainActivity : AppCompatActivity() {
                                 this@MainActivity
                             ).get(1)
                         }"
-                        callback.onLocationReceived(location.latitude, location.longitude)
                         fusedLocClient.removeLocationUpdates(this)
                         Log.d(
                             "locationeren",
@@ -982,7 +991,6 @@ class MainActivity : AppCompatActivity() {
             }
             fusedLocClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
 
-
         }
         catch (e: SecurityException) {
             e.printStackTrace()
@@ -990,7 +998,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun fetchWeatherData(latitude : Double, longitude: Double) {
-
         val api = RetrApi.RetrofitBuilder
         api.getWeather(latitude, longitude)
             .enqueue(object : retrofit2.Callback<WeatherResponse> {
@@ -1002,9 +1009,9 @@ class MainActivity : AppCompatActivity() {
                     if (response.isSuccessful) {
                         val weatherData = response.body()
                         weatherData?.let {
-                            viewModel.setWeatherToRoom(weatherData)
                             updateUI(weatherData)
                             Log.e("udate ui", "weather data tanım: ${weatherData}")
+                            viewModel.setWeatherToRoom(weatherData)
                         }
                     }
                     binding.swipe.isRefreshing = false
@@ -1064,25 +1071,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun getAreaName(latitude: Double, longitude: Double, context: Context) : List<String>{
-        val geocoder = Geocoder(context, Locale.getDefault())
-        return try {
-            val address = geocoder.getFromLocation(latitude, longitude, 1)
-            if(address!!.isNotEmpty()){
-                val city = address[0].adminArea
-                val district = address[0].subAdminArea
-                listOf(district, city)
-            }
-            else{
-                emptyList()
-            }
-        }
-        catch (e: Exception){
-            e.printStackTrace()
-            emptyList()
-        }
-    }
-
     fun RV_set_up_hourly(adapter : AdapterHourly, list : List<HourlyList>){
         val layManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         adapter.submitList(list)
@@ -1107,133 +1095,7 @@ class MainActivity : AppCompatActivity() {
             rv.addItemDecoration(Item_Decoration(35))
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun convertHourlyToList(weatherData: WeatherResponse, flag: Int = 0) : List<HourlyList>{
-        val list = ArrayList<HourlyList>()
-        var hour = LocalTime.now().hour //api 26
 
-        if(flag == 1){
-            hour = 0
-        }
-
-        for (i in hour until (hour+24)){
-            val a = HourlyList(weatherData.hourly.time[i], weatherData.hourly.temperature_2m[i].toInt(), weatherData.hourly.relative_humidity_2m[i], weatherData.hourly.rain[i], weatherData.hourly.showers[i], weatherData.hourly.snowfall[i], weatherData.hourly.cloud_cover[i], weatherData.hourly.apparent_temperature[i].toInt(), weatherData.hourly.wind_speed_10m[i], weatherData.hourly.wind_direction_10m[i])
-            list.add(a)
-        }
-
-        return list
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun convertHourlyToListForecast(weatherData: WeatherResponse) : List<DailyForecast>{
-        val list = ArrayList<DailyForecast>()
-
-        val temp = ArrayList<Double>()
-        val ap_temp = ArrayList<Double>()
-        val hum = ArrayList<Int>()
-        val rain = ArrayList<Double>()
-        val time = ArrayList<String>()
-
-        var previousBound = 0
-        for (i in weatherData.hourly.time.indices){
-            var a: DailyForecast
-
-            temp.add(weatherData.hourly.temperature_2m[i])
-            ap_temp.add(weatherData.hourly.apparent_temperature[i])
-            hum.add(weatherData.hourly.relative_humidity_2m[i])
-            rain.add(weatherData.hourly.rain[i] + weatherData.hourly.showers[i])
-            time.add(weatherData.hourly.time[i])
-
-            val max_temp = temp.max().toInt()
-            val min_temp = temp.min().toInt()
-            val max_ap_temp = ap_temp.max().toInt()
-            val min_ap_temp = ap_temp.min().toInt()
-            val max_hum = hum.max()
-            val min_hum = hum.min()
-            val rain_intervals = getRainIntervals(time, rain)
-
-            if((i + 1) % 24 == 0){
-                a = DailyForecast(formatDate(weatherData.hourly.time[previousBound].substring(0,10)), max_temp.toString(), min_temp.toString(), max_ap_temp.toString(), min_ap_temp.toString(), max_hum.toString(), min_hum.toString(), rain_intervals, null )
-                previousBound = i+1
-                list.add(a)
-                temp.clear()
-                ap_temp.clear()
-                hum.clear()
-                rain.clear()
-                time.clear()
-            }
-        }
-        return list
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun convertHourlyToListForecastChart(weatherData: WeatherResponse) : List<ForecastChart>{
-        val list = ArrayList<ForecastChart>()
-
-        val temp = ArrayList<Double>()
-        val ap_temp = ArrayList<Double>()
-
-        val rain = ArrayList<Double>()
-        val time = ArrayList<String>()
-
-        var previousBound = 0
-        for (i in weatherData.hourly.time.indices){
-            var a: ForecastChart
-
-            temp.add(weatherData.hourly.temperature_2m[i])
-            ap_temp.add(weatherData.hourly.apparent_temperature[i])
-
-            rain.add(weatherData.hourly.rain[i] + weatherData.hourly.showers[i])
-            time.add(weatherData.hourly.time[i])
-
-            val max_temp = temp.max().toInt()
-            val min_temp = temp.min().toInt()
-            val rain_intervals = getRainIntervals(time, rain)
-
-            if((i + 1) % 24 == 0){
-                a = ForecastChart(formatDate(weatherData.hourly.time[previousBound].substring(0,10)), max_temp.toString(), min_temp.toString(), if(rain_intervals.isNotEmpty()) 1 else 0)
-                previousBound = i+1
-                list.add(a)
-                temp.clear()
-                ap_temp.clear()
-                rain.clear()
-                time.clear()
-            }
-        }
-        return list
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun formatDate(date: String): String {
-        val localDate = LocalDate.parse(date)
-        val formatter = DateTimeFormatter.ofPattern("d MMMM, E", Locale("tr"))
-        return localDate.format(formatter)
-    }
-
-    fun getRainIntervals(hourlist: ArrayList<String>, rainlist: ArrayList<Double>): String {
-        val intervals = mutableListOf<Pair<String, String>>()
-        var startIndex: Int? = null
-
-        for (i in rainlist.indices) {
-            if (rainlist[i] > 0) {
-                if (startIndex == null) {
-                    startIndex = i
-                }
-            } else {
-                if (startIndex != null) {
-                    intervals.add(Pair(hourlist[startIndex].substring(11, 16), hourlist[i - 1].substring(11, 16)))
-                    startIndex = null
-                }
-            }
-        }
-
-        // if still raining at the end
-        if (startIndex != null) {
-            intervals.add(Pair(hourlist[startIndex].substring(11, 16), hourlist.last().substring(11, 16)))
-        }
-
-        return intervals.joinToString(" | ") { "${it.first} - ${it.second}" }
-    }
 
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -1261,10 +1123,17 @@ class MainActivity : AppCompatActivity() {
             val ayar = data?.getStringExtra("ayar")
 
             ayar?.let{
-                uiFlag = true
-                val loc = getLocFromSharedPref(this)
-                if(loc != null){
-                    fetchWeatherData(loc.first, loc.second)
+                uiFlag = false
+
+                val weatherResponse = viewModel.weatherResponse
+                if(weatherResponse != null){
+                    updateUI(weatherResponse)
+                }
+                else{
+                    val loc = getLocFromSharedPref(this)
+                    if(loc != null){
+                        fetchWeatherData(loc.first, loc.second)
+                    }
                 }
 
                 var selected_gunesli = getDataFromSharedPref(this, "gunesli_shared", "gunesli_data")

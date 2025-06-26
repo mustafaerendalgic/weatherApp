@@ -13,27 +13,27 @@ import javax.inject.Inject
 @HiltViewModel
 class WeatherViewModel @Inject constructor(private val dao: DaoForWeather) : ViewModel() {
 
-    private val _weatherResponse = MutableLiveData<WeatherResponse>()
-    var weatherResponse : LiveData<WeatherResponse> = _weatherResponse
+    private var _weatherResponse : WeatherResponse? = null
+    var weatherResponse : WeatherResponse? = _weatherResponse
 
-    fun setWeatherResponse(weatherResponse1: WeatherResponse){
-        _weatherResponse.value = weatherResponse1
+    fun storeWeatherResponseInLocalVariable(weatherResponse1: WeatherResponse){
+        _weatherResponse = weatherResponse1
     }
 
     fun setWeatherToRoom(weatherResponse1: WeatherResponse){
         viewModelScope.launch {
             dao.insertWeatherResponse(weatherResponse1)
+            storeWeatherResponseInLocalVariable(weatherResponse1)
         }
     }
 
-    fun getTheWeatherFromRoom(){
+    fun getTheWeatherFromRoomAndStoreIt(){
         viewModelScope.launch {
-            dao.getResponse()?.let { setWeatherResponse(it) }
+            dao.getResponse()?.let { storeWeatherResponseInLocalVariable(it) }
         }
     }
 
     suspend fun getWeather(): WeatherResponse? {
-
         return dao.getResponse()
     }
 
