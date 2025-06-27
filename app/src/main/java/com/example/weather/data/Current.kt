@@ -15,5 +15,5 @@ data class Current(
     val wind_direction_10m : Double,
     val apparent_temperature : Double,
     val surface_pressure : Double,
-    val wind_gusts_10m : Double
+    val wind_gusts_10m : Double,
 )

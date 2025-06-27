@@ -43,8 +43,8 @@
     <string name="wind_direction_northwest">Northwest</string>
     <string name="wind_direction_unknown">Unknown</string>
 
-    <string name="temperature">Temp</string>
-    <string name="feels_like">App Temp</string>
+    <string name="temperature">Temperature</string>
+    <string name="feels_like">Feels like</string>
     <string name="humidity">Humidity</string>
     <string name="wind_speed">Speed</string>
     <string name="wind_direction">Direction:</string>

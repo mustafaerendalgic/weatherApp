@@ -18,7 +18,7 @@
             android:id="@+id/main"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/arkaplan">
+            android:background="@color/arkaplanGenel">
 
             <ImageView
                 android:id="@+id/arcMain"
@@ -57,7 +57,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:textColor="#858585"
+                android:textColor="@color/subSiyahText"
                 android:textSize="20dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -67,16 +67,17 @@
                 android:id="@+id/districtName"
                 style="@style/subfont"
                 android:layout_width="0dp"
-                android:layout_height="35dp"
+                android:layout_height="65dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:autoSizeMaxTextSize="30sp"
                 android:autoSizeMinTextSize="10sp"
-                android:gravity="center"
                 android:autoSizeTextType="uniform"
+                android:gravity="center"
                 android:paddingHorizontal="10dp"
                 android:text=""
-                android:textSize="30sp"
+                android:textColor="@color/textSiyah"
+                android:textSize="40sp"
                 app:layout_constraintBottom_toTopOf="@+id/derece"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
@@ -89,6 +90,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="150dp"
                 android:textSize="80dp"
+                android:textColor="@color/textSiyah"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -100,7 +102,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text=""
-                android:textColor="#575757"
+                android:textColor="@color/subSiyahText"
                 android:textSize="23dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -114,9 +116,10 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
                 android:fontFamily="@font/nb"
-                android:text="Önümüzdeki 24 Saatin Raporu"
+                android:text="@string/yirmidört_saatin_raporu"
                 android:textSize="24dp"
                 android:textStyle="bold"
+                android:textColor="@color/textSiyah"
                 app:layout_constraintBottom_toTopOf="@id/saatlikdurum"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/durum4" />
@@ -129,8 +132,8 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="16dp"
                 android:fontFamily="@font/nb"
-                android:text="Grafik olarak göster"
-
+                android:text="@string/grafik_olarak_goster"
+                android:textColor="@color/textSiyah"
                 android:textSize="20dp"
                 app:layout_constraintBottom_toTopOf="@id/saatlik"
                 app:layout_constraintStart_toStartOf="parent"
@@ -218,9 +221,10 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
                 android:fontFamily="@font/nb"
-                android:text="Önümüzdeki 7 Günün Raporu"
+                android:text="@string/yedi_gunun_raporu"
                 android:textSize="24dp"
                 android:textStyle="bold"
+                android:textColor="@color/textSiyah"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/saatlik" />
 
@@ -232,8 +236,9 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="16dp"
                 android:fontFamily="@font/nb"
-                android:text="Grafik olarak göster"
+                android:text="@string/grafik_olarak_goster"
                 android:textSize="20dp"
+                android:textColor="@color/textSiyah"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/forecastText" />
 
@@ -242,6 +247,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=""
+                android:textColor="@color/textSiyah"
                 app:layout_constraintBottom_toBottomOf="@id/grafikForecast"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/forecastText" />
@@ -252,6 +258,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="70dp"
+                android:textColor="@color/textSiyah"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
@@ -266,6 +273,7 @@
                 android:layout_marginTop="32dp"
                 android:layout_marginBottom="100dp"
                 android:visibility="gone"
+
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -277,24 +285,25 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:padding="16dp"
+
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/gun">
 
-                <!-- Humidity Card -->
+
                 <androidx.cardview.widget.CardView
                     android:layout_width="200dp"
                     android:layout_height="match_parent"
                     android:layout_margin="6dp"
                     android:layout_weight="1"
                     android:elevation="16dp"
+
                     app:cardBackgroundColor="@color/arkaplan"
                     app:cardCornerRadius="10dp">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-
                         android:layout_marginBottom="12dp">
 
                         <com.airbnb.lottie.LottieAnimationView
@@ -319,8 +328,9 @@
                             android:layout_marginTop="8dp"
                             android:gravity="left"
                             android:padding="8dp"
-                            android:text="Nem"
+                            android:text="@string/nem"
                             android:textSize="15dp"
+                            android:textColor="@color/textSiyah"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@id/nemanimasyon"
                             app:layout_constraintTop_toTopOf="parent" />
@@ -333,6 +343,7 @@
                             android:layout_marginBottom="12dp"
                             android:text=""
                             android:textSize="20dp"
+                            android:textColor="@color/textSiyah"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@id/nemanimasyon"
                             app:layout_constraintTop_toBottomOf="@id/nemtext" />
@@ -347,6 +358,7 @@
                     android:layout_margin="4dp"
                     android:layout_weight="1"
                     android:elevation="16dp"
+                    app:cardBackgroundColor="@color/arkaplan"
                     app:cardCornerRadius="10dp">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
@@ -376,7 +388,8 @@
                             android:layout_marginEnd="4dp"
                             android:gravity="left"
                             android:padding="8dp"
-                            android:text="Bulut Örtüsü"
+                            android:text="@string/bulut_ortusu"
+                            android:textColor="@color/textSiyah"
                             android:textSize="14dp"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@id/bulutortusu12"
@@ -389,6 +402,7 @@
                             android:layout_height="wrap_content"
                             android:text=""
                             android:textSize="20dp"
+                            android:textColor="@color/textSiyah"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@id/bulutortusu12"
                             app:layout_constraintTop_toBottomOf="@id/bulutluluk_text" />
@@ -416,6 +430,7 @@
                     android:layout_margin="6dp"
                     android:layout_weight="1"
                     android:elevation="16dp"
+                    app:cardBackgroundColor="@color/arkaplan"
                     app:cardCornerRadius="10dp">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
@@ -443,8 +458,9 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
                             android:padding="8dp"
-                            android:text="Rüzgar Hızı"
-                            android:textSize="15dp"
+                            android:textColor="@color/textSiyah"
+                            android:text="@string/ruzgar_hizi"
+                            android:textSize="14dp"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@id/ruzgaranimasyon"
                             app:layout_constraintTop_toTopOf="parent" />
@@ -452,9 +468,17 @@
                         <TextView
                             android:id="@+id/ruzgar_hizi"
                             style="@style/verifontu"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:gravity="center"
+                            android:textColor="@color/textSiyah"
+                            android:autoSizeTextType="uniform"
+                            android:autoSizeMaxTextSize="20dp"
+                            android:autoSizeMinTextSize="4dp"
+                            android:layout_marginEnd="8dp"
+                            android:layout_marginStart="8dp"
+                            android:maxLines="1"
+                            app:layout_constraintBottom_toBottomOf="parent"
                             android:text=""
                             android:textSize="20dp"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -471,6 +495,7 @@
                     android:layout_margin="6dp"
                     android:layout_weight="1"
                     android:elevation="16dp"
+                    app:cardBackgroundColor="@color/arkaplan"
                     app:cardCornerRadius="10dp">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
@@ -498,8 +523,9 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
                             android:padding="8dp"
-                            android:text="Rüzgar Yönü"
+                            android:text="@string/ruzgar_yonu"
                             android:textSize="14dp"
+                            android:textColor="@color/textSiyah"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@id/ruzgaranimasyon2"
                             app:layout_constraintTop_toTopOf="parent" />
@@ -507,11 +533,19 @@
                         <TextView
                             android:id="@+id/ruzgar_yonu"
                             style="@style/verifontu"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="12dp"
-                            android:text=""
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:gravity="center"
                             android:textSize="20dp"
+                            android:autoSizeTextType="uniform"
+                            android:autoSizeMaxTextSize="20dp"
+                            android:autoSizeMinTextSize="4dp"
+                            android:textColor="@color/textSiyah"
+                            android:layout_marginEnd="8dp"
+                            android:layout_marginStart="8dp"
+                            android:maxLines="1"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            android:text=""
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@id/ruzgaranimasyon2"
                             app:layout_constraintTop_toBottomOf="@id/ruzgar_yonu_text" />
@@ -539,6 +573,7 @@
                     android:layout_margin="6dp"
                     android:layout_weight="1"
                     android:elevation="16dp"
+                    app:cardBackgroundColor="@color/arkaplan"
                     app:cardCornerRadius="10dp">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
@@ -563,8 +598,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:padding="8dp"
-                            android:text="Yağmur"
+                            android:text="@string/yagmur"
                             android:textSize="14dp"
+                            android:textColor="@color/textSiyah"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@id/yagmuranimasyon1"
                             app:layout_constraintTop_toTopOf="parent" />
@@ -577,6 +613,7 @@
                             android:layout_marginBottom="12dp"
                             android:text=""
                             android:textSize="22dp"
+                            android:textColor="@color/textSiyah"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@id/yagmuranimasyon1"
                             app:layout_constraintTop_toBottomOf="@id/yagmur_text" />
@@ -591,6 +628,7 @@
                     android:layout_margin="6dp"
                     android:layout_weight="1"
                     android:elevation="16dp"
+                    app:cardBackgroundColor="@color/arkaplan"
                     app:cardCornerRadius="10dp">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
@@ -617,8 +655,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:padding="8dp"
-                            android:text="Sağanak"
+                            android:text="@string/saganak"
                             android:textSize="14dp"
+                            android:textColor="@color/textSiyah"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@id/bulutortusu"
                             app:layout_constraintTop_toTopOf="parent" />
@@ -631,6 +670,7 @@
                             android:layout_marginBottom="12dp"
                             android:text=""
                             android:textSize="22dp"
+                            android:textColor="@color/textSiyah"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@id/bulutortusu"
                             app:layout_constraintTop_toBottomOf="@id/saganak_text" />
@@ -657,17 +697,20 @@
                     android:layout_margin="6dp"
                     android:layout_weight="1"
                     android:elevation="16dp"
+                    app:cardBackgroundColor="@color/arkaplan"
                     app:cardCornerRadius="10dp">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent">
+                        android:layout_height="match_parent"
+                        android:layout_marginBottom="18dp">
 
                         <com.airbnb.lottie.LottieAnimationView
                             android:id="@+id/karmini"
                             android:layout_width="60dp"
                             android:layout_height="60dp"
                             android:layout_marginStart="4dp"
+                            android:layout_marginTop="12dp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
@@ -681,8 +724,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:padding="8dp"
-                            android:text="Kar"
+                            android:text="@string/kar"
                             android:textSize="16dp"
+                            android:textColor="@color/textSiyah"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@id/karmini"
                             app:layout_constraintTop_toTopOf="parent" />
@@ -695,6 +739,7 @@
                             android:layout_marginBottom="12dp"
                             android:text=""
                             android:textSize="22dp"
+                            android:textColor="@color/textSiyah"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@id/karmini"
                             app:layout_constraintTop_toBottomOf="@id/kartext" />
@@ -702,32 +747,32 @@
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </androidx.cardview.widget.CardView>
 
-                <!-- Thunderstorm Probability Card -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_margin="6dp"
                     android:layout_weight="1"
                     android:elevation="16dp"
-                    app:cardCornerRadius="10dp">
+                    app:cardBackgroundColor="@color/arkaplan"
+                    app:cardCornerRadius="10dp"                    >
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_marginBottom="18dp">
+                        android:layout_marginTop="12dp"
+                        >
 
                         <com.airbnb.lottie.LottieAnimationView
                             android:id="@+id/basincanimasyon"
-                            android:layout_width="60dp"
-                            android:layout_height="60dp"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
                             android:layout_marginStart="18dp"
-                            android:layout_marginTop="12dp"
-                            app:lottie_loop="true"
+
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
                             app:lottie_autoPlay="true"
                             app:lottie_fileName="metre.json"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            app:lottie_loop="true" />
 
                         <TextView
                             android:id="@+id/basinctext"
@@ -736,27 +781,79 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="-14dp"
                             android:padding="8dp"
-                            android:text="Basınç"
-                            android:textSize="16dp"
-                            app:layout_constraintEnd_toEndOf="parent"
+                            android:text="@string/basinc2"
+                            android:textSize="12dp"
+                            android:textColor="@color/textSiyah"
+                            android:layout_marginEnd="8dp"
                             app:layout_constraintStart_toEndOf="@id/basincanimasyon"
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <TextView
                             android:id="@+id/basinc"
                             style="@style/verifontu"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_marginStart="16dp"
+                            android:gravity="center"
+                            android:text=""
+                            android:textSize="12dp"
+                            android:layout_marginEnd="8dp"
+                            android:autoSizeTextType="uniform"
+                            android:autoSizeMaxTextSize="20dp"
+                            android:autoSizeMinTextSize="4dp"
+                            android:maxLines="1"
+                            android:textColor="@color/textSiyah"
+                            app:layout_constraintBottom_toBottomOf="@+id/basinctext"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="@+id/basinctext"
+                            app:layout_constraintTop_toTopOf="@id/basinctext" />
+
+                        <com.airbnb.lottie.LottieAnimationView
+                            android:id="@+id/uvanimasyon"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_marginStart="8dp"
+                            app:lottie_loop="true"
+                            app:lottie_autoPlay="true"
+                            app:lottie_fileName="uvmini.json"
+                            app:layout_constraintBottom_toTopOf="@id/uvanimasyon"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/basincanimasyon"/>
+
+                        <TextView
+                            android:id="@+id/uvtext"
+                            style="@style/verifontu"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="-14dp"
-                            android:layout_marginTop="6dp"
-                            android:layout_marginBottom="12dp"
-                            android:text=""
-                            android:textSize="15dp"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@id/basincanimasyon"
-                            app:layout_constraintTop_toBottomOf="@id/basinctext" />
+                            android:padding="8dp"
+                            android:text="UV"
+                            android:textSize="12dp"
+                            android:textColor="@color/textSiyah"
+                            app:layout_constraintStart_toStartOf="@id/basinctext"
+                            app:layout_constraintTop_toTopOf="@id/uvanimasyon" />
 
+                        <TextView
+                            android:id="@+id/uv"
+                            style="@style/verifontu"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:gravity="center"
+                            android:text=""
+                            android:textSize="12dp"
+                            android:autoSizeTextType="uniform"
+                            android:autoSizeMaxTextSize="20dp"
+                            android:autoSizeMinTextSize="4dp"
+                            android:layout_marginEnd="8dp"
+                            android:maxLines="1"
+                            android:textColor="@color/textSiyah"
+                            app:layout_constraintBottom_toBottomOf="@+id/uvtext"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="@+id/basinc"
+                            app:layout_constraintTop_toTopOf="@id/uvtext" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
+
+
                 </androidx.cardview.widget.CardView>
 
             </LinearLayout>

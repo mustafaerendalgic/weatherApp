@@ -15,6 +15,7 @@ import com.airbnb.lottie.LottieAnimationView
 import com.example.weather.R
 import com.example.weather.data.HourlyList
 import com.example.weather.util.getFontId
+import com.example.weather.util.getWindDirectionSimple
 
 
 class ViewHolderHourlyDetailed(item : View) : RecyclerView.ViewHolder(item){
@@ -35,7 +36,7 @@ class ViewHolderHourlyDetailed(item : View) : RecyclerView.ViewHolder(item){
         im1 = item.findViewById(R.id.bulutimage22)
         hissedilen = item.findViewById(R.id.sicaklik_apparent2)
         nem = item.findViewById(R.id.nem_hourly2)
-        ruzgarhiz = item.findViewById(R.id.ruzgarhizi2)
+        ruzgarhiz = item.findViewById(R.id.ruzgarhizi)
         ruzgaryon = item.findViewById(R.id.ruzgaryonu2)
     }
 }
@@ -76,12 +77,12 @@ class AdapterHourlyDetailed(private var sel_color: String, val ctx : Context, pr
         val item = getItem(position)
         holder.im1.visibility = View.INVISIBLE
         holder.animasyon.visibility = View.VISIBLE
-        holder.hava_derece.text = "Sıcaklık: "+ item.temperature_2m.toString() + " °C"
-        holder.hissedilen.text = "Hissedilen: " + item.apparent_temperature.toString() +  " °C"
+        holder.hava_derece.text = ctx.getString(R.string.temperature) + ": " + item.temperature_2m + " °C"
+        holder.hissedilen.text = ctx.getString(R.string.feels_like) + ": " + item.apparent_temperature + " °C"
         holder.saat.text = item.time.drop(11)
-        holder.nem.text = "Nem: " + item.relative_humidity_2m.toString() + "%"
-        holder.ruzgarhiz.text = "Rüz. Hızı: " + item.wind_speed_10m.toString() + " km/h"
-        holder.ruzgaryon.text = "Rüz. Yönü: " + item.wind_direction_10m.toString() + "°"
+        holder.nem.text = ctx.getString(R.string.humidity) + ": " + item.relative_humidity_2m + "%"
+        holder.ruzgarhiz.text = ctx.getString(R.string.wind_speed) + ": " + item.wind_speed_10m + " km/h"
+        holder.ruzgaryon.text = ctx.getString(R.string.wind_direction) + " " + getWindDirectionSimple(ctx, item.wind_direction_10m.toDouble())
 
         var animasyon_ismi = "gunesmini2.json"
 

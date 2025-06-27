@@ -1,13 +1,15 @@
 package com.example.weather.util
 
+import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.airbnb.lottie.animation.content.Content
 import com.example.weather.data.ForecastChart
 import com.example.weather.data.WeatherResponse
 
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun convertHourlyToListForecastChart(weatherData: WeatherResponse) : List<ForecastChart>{
+fun convertHourlyToListForecastChart(weatherData: WeatherResponse, ctx: Context) : List<ForecastChart>{
     val list = ArrayList<ForecastChart>()
 
     val temp = ArrayList<Double>()
@@ -31,7 +33,8 @@ fun convertHourlyToListForecastChart(weatherData: WeatherResponse) : List<Foreca
         val rain_intervals = getRainIntervals(time, rain)
 
         if((i + 1) % 24 == 0){
-            a = ForecastChart(formatDate(weatherData.hourly.time[previousBound].substring(0,10)), max_temp.toString(), min_temp.toString(), if(rain_intervals.isNotEmpty()) 1 else 0)
+            val locale = ctx.resources.configuration.locales[0]
+            a = ForecastChart(formatDate(weatherData.hourly.time[previousBound].substring(0,10), locale), max_temp.toString(), min_temp.toString(), if(rain_intervals.isNotEmpty()) 1 else 0)
             previousBound = i+1
             list.add(a)
             temp.clear()

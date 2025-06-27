@@ -5,7 +5,7 @@
     android:id="@+id/rootLay"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/arkaplanGenel"
     tools:context=".ayarlar">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -38,7 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:text="Ayarlar"
+        android:text="@string/ayarlarYazi"
         android:textSize="50dp"
         android:textColor="@color/black"
         style="@style/ayarlarfontu"
@@ -62,27 +62,29 @@
 
         <TextView
             android:id="@+id/detaylirapor"
+            style="@style/ayarlarfontu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="20dp"
-            android:text="Bugün için detaylı rapor"
+            android:layout_marginTop="24dp"
+            android:text="@string/bugun_icin_detayli"
             android:textSize="20dp"
-            style="@style/ayarlarfontu"
+            android:textColor="@color/black"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/imageView888" />
 
-    <TextView
-        android:id="@+id/raporarkaplan"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="20dp"
-        android:text="Rapor Tema Rengi"
-        android:textSize="25dp"
-        style="@style/ayarlarfontu"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/detaylirapor" />
+        <TextView
+            android:id="@+id/raporarkaplan"
+            style="@style/ayarlarfontu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="24dp"
+            android:text="@string/rapor_tema_rengi"
+            android:textSize="25dp"
+            android:textColor="@color/black"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/dilText" />
 
     <TextView
         android:id="@+id/fontText"
@@ -90,9 +92,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="20dp"
-        android:text="Rapor Fontu"
+        android:text="@string/rapor_fontu"
         android:textSize="25dp"
         style="@style/ayarlarfontu"
+        android:textColor="@color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/raportemagrid" />
 
@@ -180,9 +183,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="20dp"
-        android:text="Güneşli Gün Animasyonu"
+        android:text="@string/gunesli_gun_animasyonu"
         android:textSize="25dp"
         style="@style/ayarlarfontu"
+        android:textColor="@color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/fontGrid" />
 
@@ -255,21 +259,21 @@
                     app:lottie_loop="true" />
 
                 <com.airbnb.lottie.LottieAnimationView
-                    android:id="@+id/gunesli3"
-                    android:layout_width="150dp"
-                    android:layout_height="150dp"
-                    android:layout_margin="8dp"
-                    app:lottie_autoPlay="true"
-                    app:lottie_fileName="girllaying.json"
-                    app:lottie_loop="true" />
-
-                <com.airbnb.lottie.LottieAnimationView
                     android:id="@+id/gunesli4"
                     android:layout_width="150dp"
                     android:layout_height="150dp"
                     android:layout_margin="8dp"
                     app:lottie_autoPlay="true"
                     app:lottie_fileName="gunesmini2.json"
+                    app:lottie_loop="true" />
+
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/gunesli3"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_margin="8dp"
+                    app:lottie_autoPlay="true"
+                    app:lottie_fileName="girllaying.json"
                     app:lottie_loop="true" />
 
             </GridLayout>
@@ -297,7 +301,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="20dp"
-            android:text="Bulutlu Gün Animasyonu"
+            android:text="@string/bulutlu_gun_animasyonu"
             android:textSize="25dp"
             style="@style/ayarlarfontu"
             app:layout_constraintStart_toStartOf="parent"
@@ -383,7 +387,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="20dp"
-            android:text="Yağmurlu Gün Animasyonu"
+            android:text="@string/yagmurlu_gun_animasyonu"
             android:textSize="25dp"
             style="@style/ayarlarfontu"
             app:layout_constraintStart_toStartOf="parent"
@@ -566,10 +570,69 @@
             android:id="@+id/switchdetay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="24dp"
             android:layout_marginEnd="16dp"
+            app:layout_constraintBottom_toBottomOf="@id/detaylirapor"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/imageView888" />
+
+        <Switch
+            android:id="@+id/switchDarkMode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintBottom_toBottomOf="@id/darkModeText"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/switchdetay" />
+
+        <TextView
+            android:id="@+id/darkModeText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            style="@style/ayarlarfontu"
+
+            android:text="Dark Mode"
+            android:textSize="20dp"
+            android:layout_marginTop="24dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/detaylirapor" />
+
+        <TextView
+            android:id="@+id/dilText"
+            style="@style/ayarlarfontu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="@string/dil"
+            android:textSize="20dp"
+            app:layout_constraintBottom_toBottomOf="@id/trBayrak"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/trBayrak" />
+
+        <ImageView
+            android:id="@+id/trBayrak"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/darkModeText"
+            app:srcCompat="@drawable/roundel_flag_of_turkey_svg" />
+
+        <ImageView
+            android:id="@+id/ukFlag"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="16dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintBottom_toBottomOf="@+id/trBayrak"
+            app:layout_constraintEnd_toStartOf="@+id/trBayrak"
+            app:layout_constraintTop_toBottomOf="@+id/darkModeText"
+            app:srcCompat="@drawable/ukflag" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.core.widget.NestedScrollView>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="genelfont">
+        <item name="fontFamily">@font/nunito</item>
+    </style>
+
+    <style name="subfont">
+        <item name="fontFamily">@font/nb</item>
+    </style>
+
+    <style name="verifontu">
+        <item name="fontFamily">@font/nb</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="ayarlarfontu">
+        <item name="fontFamily">@font/nb</item>
+        <item name="android:textColor">@color/black</item>
+
+    </style>
+
+</resources>

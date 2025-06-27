@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
@@ -76,7 +77,7 @@ class AdapterHourly(private var sel_color : String, val ctx : Context, private v
         holder.im2.visibility = View.INVISIBLE
         holder.animasyon.visibility = View.VISIBLE
         holder.hava_derece.text = item.temperature_2m.toString() + " °C"
-        holder.hissedilen.text = "His. " + item.apparent_temperature.toString() +  " °C"
+        holder.hissedilen.text = ContextCompat.getString(ctx, R.string.hiss) + ": " + item.apparent_temperature.toString() +  " °C"
         holder.saat.text = item.time.drop(11)
 
         var animasyon_ismi = "gunesmini2.json"

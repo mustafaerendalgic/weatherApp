@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
@@ -79,9 +80,9 @@ class AdapterForecast(private var color: String, val ctx: Context, private var f
         holder.gunes_aralik.visibility = View.VISIBLE
         holder.arkap.setBackgroundColor(Color.parseColor(color))
 
-        holder.frc_sicaklik.text = "Sıcaklık: " + item.max_temp + " °C / " + item.min_temp + " °C"
-        holder.frc_hiss_sicaklik.text = "Hissedilen Sıcaklık: " + item.his_max_temp + " °C / " + item.his_min_temp + " °C"
-        holder.frc_nem.text = "Nem(Max./Min.): " + item.max_nem + "% / " + item.min_nem + "%"
+        holder.frc_sicaklik.text = ContextCompat.getString(ctx, R.string.tempLong) + ": " + item.max_temp + " °C / " + item.min_temp + " °C"
+        holder.frc_hiss_sicaklik.text = ContextCompat.getString(ctx, R.string.tempAppLong) + ": " + item.his_max_temp + " °C / " + item.his_min_temp + " °C"
+        holder.frc_nem.text = ContextCompat.getString(ctx, R.string.humidity) + "(Max./Min.): " + item.max_nem + "% / " + item.min_nem + "%"
         holder.tarih.text = item.time
         if(!item.yagmur.isEmpty()){
             holder.frc_gunesli.visibility = View.INVISIBLE
@@ -93,18 +94,18 @@ class AdapterForecast(private var color: String, val ctx: Context, private var f
             var mesaj: String
 
             if(yagmur_zamani >= 5)
-                mesaj = "Bugün çoğunlukla yağmurlu görünüyor. Şemsiyeni unutma!   ☂\uFE0F"
+                mesaj = ContextCompat.getString(ctx, R.string.cogunluklaYagmur)
             else if (yagmur_zamani >= 3)
-                mesaj = "Bugün yağmur yağabilir. Şemsiyeni yanına al!   ☂\uFE0F"
+                mesaj = ContextCompat.getString(ctx, R.string.ortaYagmur)
             else
-                mesaj = "Bugün biraz yağmur yağabilir!   ☂\uFE0F"
+                mesaj = ContextCompat.getString(ctx, R.string.azYagmur)
             holder.yagmur_aralik.text = mesaj
 
 
         }
         else{
             holder.yagmur_aralik.visibility = View.INVISIBLE
-            holder.gunes_aralik.text = "Çoğunlukla güneşli!  \uD83C\uDF1E"
+            holder.gunes_aralik.text = ContextCompat.getString(ctx, R.string.cogunluklaGunesli)
             holder.frc_yagmurlu.visibility = View.INVISIBLE
             holder.frc_gunesli.visibility = View.VISIBLE
             holder.gunes_aralik.visibility = View.VISIBLE

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FFFFFFFF</color>
+    <color name="white">#FF000000</color>
+    <color name="background_arc">#171717</color>
+    <color name="text_color">#ffffff</color>
+    <color name="general_bg">#ffffff</color>
+    <color name="background_arc2">#c089fa</color>
+    <color name="design_background">#c7a5d6</color>
+    <color name="yazi_renk">#FFFFFF</color>
+    <color name="mor">#7c6fde</color>
+    <color name="gunes">#edbc34</color>
+    <color name="yagmur">#3487ed</color>
+    <color name="arkaplan">#1d1d1d</color>
+    <color name="arkaplanGenel">#171717</color>
+    <color name="outerCircle">#4d4ca1</color>
+    <color name="innerCircle">#614ca1</color>
+    <color name="textSiyah">#ffffff</color>
+    <color name="subSiyahText">#aaffffff</color>
+
+    <color name="barAndHumdColors">#3b92c2</color>
+
+    <color name="settingsCol1">#1b1d33</color>
+    <color name="settingsCol2">#202020</color> //
+    <color name="settingsCol3">#1b2b33</color>
+    <color name="settingsCol4">#1e1713</color>
+    <color name="settingsCol5">#39271c</color>
+    <color name="settingsCol6">#103056</color> //
+    <color name="settingsCol7">#09223e</color>
+    <color name="settingsCol8">#223346</color>
+    <color name="settingsCol9">#292929</color> //
+    <color name="settingsCol10">#20391c</color>
+    <color name="settingsCol11">#7d33a7</color> //
+    <color name="settingsCol12">#382a14</color>
+    <color name="settingsCol13">#390f49</color> //
+    <color name="settingsCol14">#c9791e</color> //
+    <color name="settingsCol15">#331b2b</color>
+
+
+</resources>

@@ -3,7 +3,7 @@
 
 <item>
     <shape>
-        <solid android:color="#98db81"></solid>
+        <solid android:color="@color/settingsCol13"></solid>
         <corners android:radius="@dimen/kenar"></corners>
 
     </shape>

@@ -12,7 +12,19 @@ fun saveColorToSharedPref(context: Context, color: String) {
 
 fun getColorFromSharedPref(context: Context): String? {
     val sharedPref = context.getSharedPreferences("renk_shared", MODE_PRIVATE)
-    return sharedPref.getString("renk_shared", "#869feb") //"#6ec29a"
+    return sharedPref.getString("renk_shared", null) //"#6ec29a"
+}
+
+fun saveColorToSharedPrefForDarkMode(context: Context, color: String) {
+    val sharedPref = context.getSharedPreferences("renk_shared_dark", MODE_PRIVATE)
+    val editor = sharedPref.edit()
+    editor.putString("renk_shared_dark", color)
+    editor.apply()
+}
+
+fun getColorFromSharedPrefForDarkMode(context: Context): String? {
+    val sharedPref = context.getSharedPreferences("renk_shared_dark", MODE_PRIVATE)
+    return sharedPref.getString("renk_shared_dark", null) //"#6ec29a"
 }
 
 fun saveDataToSharedPRef(context: Context, sharedName: String, dataName: String, data: String) {

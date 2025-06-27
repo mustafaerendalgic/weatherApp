@@ -8,8 +8,8 @@ import java.util.Locale
 
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun formatDate(date: String): String {
+fun formatDate(date: String, locale: Locale): String {
     val localDate = LocalDate.parse(date)
-    val formatter = DateTimeFormatter.ofPattern("d MMMM, E", Locale("tr"))
+    val formatter = DateTimeFormatter.ofPattern("d MMMM, E", locale)
     return localDate.format(formatter)
 }

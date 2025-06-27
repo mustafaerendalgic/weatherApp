@@ -10,5 +10,6 @@ data class Hourly(
     val cloud_cover: List<Double>,
     val apparent_temperature: List<Double>,
     val wind_speed_10m: List<Double>,
-    val wind_direction_10m: List<Int>
+    val wind_direction_10m: List<Int>,
+    val uv_index: List<Float>
 )

@@ -1,5 +1,6 @@
 package com.example.weather.util
 
+import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.example.weather.data.DailyForecast
@@ -7,7 +8,7 @@ import com.example.weather.data.WeatherResponse
 
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun convertHourlyToListForecast(weatherData: WeatherResponse) : List<DailyForecast>{
+fun convertHourlyToListForecast(weatherData: WeatherResponse, ctx: Context) : List<DailyForecast>{
     val list = ArrayList<DailyForecast>()
 
     val temp = ArrayList<Double>()
@@ -35,7 +36,8 @@ fun convertHourlyToListForecast(weatherData: WeatherResponse) : List<DailyForeca
         val rain_intervals = getRainIntervals(time, rain)
 
         if((i + 1) % 24 == 0){
-            a = DailyForecast(formatDate(weatherData.hourly.time[previousBound].substring(0,10)), max_temp.toString(), min_temp.toString(), max_ap_temp.toString(), min_ap_temp.toString(), max_hum.toString(), min_hum.toString(), rain_intervals, null )
+            val locale = ctx.resources.configuration.locales[0]
+            a = DailyForecast(formatDate(weatherData.hourly.time[previousBound].substring(0,10), locale), max_temp.toString(), min_temp.toString(), max_ap_temp.toString(), min_ap_temp.toString(), max_hum.toString(), min_hum.toString(), rain_intervals, null )
             previousBound = i+1
             list.add(a)
             temp.clear()

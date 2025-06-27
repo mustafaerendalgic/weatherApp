@@ -1,0 +1,67 @@
+<resources>
+    <string name="app_name">Sweet Weather</string>
+    <string name="internettenEminOlun">İnternetinizin ve konumunuzun açık olduğundan emin olun</string>
+    <string name="tamam">Tamam</string>
+    <string name="ttgrafikSwitch">Grafik veya Kart görünümleri arasında geçiş yapmak için buraya tıkla!</string>
+    <string name="ttAyarlar">"Tema ve fontu buradan değiştir!</string>
+    <string name="Ruzgar"><u>Rüzgar</u></string>
+    <string name="basinc">Basınç</string>
+
+    <string name="uvDusuk">Düşük</string>
+    <string name="uvGecersiz">Geçersiz</string>
+    <string name="uvOrta">Orta</string>
+    <string name="uvYuksek">Yüksek</string>
+    <string name="uvAsiri">Aşırı</string>
+
+    <string name="dil">Dil</string>
+    <string name="ayarlarYazi">Ayarlar</string>
+    <string name="bugun_icin_detayli">Bugün için detaylı rapor</string>
+    <string name="rapor_tema_rengi">Rapor Tema Rengi</string>
+    <string name="rapor_fontu">Rapor Fontu</string>
+    <string name="gunesli_gun_animasyonu">Güneşli Gün Animasyonu</string>
+    <string name="bulutlu_gun_animasyonu">Bulutlu Gün Animasyonu</string>
+    <string name="yagmurlu_gun_animasyonu">Yağmurlu Gün Animasyonu</string>
+    <string name="yirmidört_saatin_raporu">Önümüzdeki 24 Saatin Raporu</string>
+    <string name="grafik_olarak_goster">Grafik olarak göster</string>
+    <string name="yedi_gunun_raporu">Önümüzdeki 7 Günün Raporu</string>
+    <string name="nem">Nem</string>
+    <string name="bulut_ortusu">Bulut Örtüsü</string>
+    <string name="ruzgar_hizi">Rüzgar Hızı</string>
+    <string name="ruzgar_yonu">Rüzgar Yönü</string>
+    <string name="yagmur">Yağmur</string>
+    <string name="saganak">Sağanak</string>
+    <string name="kar">Kar</string>
+    <string name="basinc2">Basınç</string>
+    <string name="hisSicaklik">Hissedilen Sıcaklık</string>
+
+    <string name="wind_direction_north">Kuzey</string>
+    <string name="wind_direction_northeast">Kuzeydoğu</string>
+    <string name="wind_direction_east">Doğu</string>
+    <string name="wind_direction_southeast">Güneydoğu</string>
+    <string name="wind_direction_south">Güney</string>
+    <string name="wind_direction_southwest">Güneybatı</string>
+    <string name="wind_direction_west">Batı</string>
+    <string name="wind_direction_northwest">Kuzeybatı</string>
+    <string name="wind_direction_unknown">Bilinmiyor</string>
+
+    <string name="temperature">Sıcaklık</string>
+    <string name="feels_like">Hissedilen</string>
+    <string name="humidity">Nem</string>
+    <string name="wind_speed">Hızı</string>
+    <string name="wind_direction">Yönü:</string>
+
+    <string name="hiss">His.</string>
+
+    <string name="cogunluklaGunesli">Çoğunlukla güneşli!</string>
+    <string name="cogunluklaYagmur">Bugün çoğunlukla yağmurlu görünüyor. Şemsiyeni unutma!   ☂️</string>
+    <string name="ortaYagmur">Bugün yağmur yağabilir. Şemsiyeni yanına al!   ☂️</string>
+    <string name="azYagmur">Bugün biraz yağmur yağabilir!   ☂️</string>
+
+    <string name="tempLong">Sıcaklık</string>
+    <string name="tempAppLong">Hissedilen Sıcaklık</string>
+
+    <string name="maxSicaklik">Sıcaklık Max</string>
+    <string name="minSicaklik">Sıcaklık Min</string>
+    <string name="islem_basarisiz">İşleminiz gerçekleşemedi...</string>
+
+</resources>

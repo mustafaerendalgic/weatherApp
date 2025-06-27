@@ -2,6 +2,7 @@ package com.example.weather
 
 import android.Manifest
 import android.app.Activity
+import android.app.LocaleManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -9,6 +10,7 @@ import android.graphics.Color
 import android.location.Geocoder
 import android.os.Build
 import android.os.Bundle
+import android.os.LocaleList
 import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
@@ -23,10 +25,13 @@ import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
+import androidx.core.app.AppLocalesStorageHelper
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -95,6 +100,7 @@ class MainActivity : AppCompatActivity() {
     private var device_latitude : Double? = null
     private var device_longitude : Double? = null
     private var isRvAttached = false
+
     private var Adapter_hourly1 = AdapterHourly("#7c6fde", this, "annie")
     private var Adapter_hourly_detailed = AdapterHourlyDetailed("#7c6fde", this, "annie")
 
@@ -103,10 +109,12 @@ class MainActivity : AppCompatActivity() {
 
     private var yagmur_animasyon = "yagmurkadin2.json"
 
-    private var gun_animasyon = "girllaying.json"
     private var bulutlu_animasyon = "gokkusagi.json"
     private var gece_animasyon = "gecemoon.json"
     private var kar_animasyon = "karbuyuk.json"
+
+
+    private var gun_animasyon =  "girllaying.json"
 
     private var currentState = gun_animasyon
     private var animationCheck = false
@@ -123,6 +131,8 @@ class MainActivity : AppCompatActivity() {
 
     private var uiFlag = false
 
+    private var anFlag = false
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -132,6 +142,15 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        changeTheLanguage(this)
+
+        var darkState = getDataFromSharedPref(this, "dark_mode", "dark_mode").takeIf { it != "empty" } ?: "0"
+
+        gun_animasyon =  if(darkState == "1") "gunesmini2.json" else "girllaying.json"
+        if(darkState == "1")
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        else
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         checkLocPerm()
 
         val chart = binding.saatlikChart
@@ -233,13 +252,6 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        val font = getDataFromSharedPref(this, "selected_font", "selected_font")
-
-        Adapter_hourly1.fontUpdate(font)
-        Adapter_hourly_detailed.fontUpdate(font)
-        AdapterForecast.fontUpdate(font)
-
-
         val settings = binding.ayarlar
         settings.setOnClickListener {
             val settingsIntent = Intent(this, ayarlar::class.java)
@@ -281,6 +293,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+
     }
 
     fun updateUI(weatherData : WeatherResponse): Int {
@@ -316,89 +329,24 @@ class MainActivity : AppCompatActivity() {
                 })
 
             }
-
+            var darkState = getDataFromSharedPref(this, "dark_mode", "dark_mode").takeIf { it != "empty" } ?: "0"
             if (!animationCheck) {
-                gun_animasyon = if (getDataFromSharedPref(
-                        this,
-                        "gunesli_shared",
-                        "gunesli_data"
-                    ) != "empty"
-                ) getDataFromSharedPref(
-                    this,
-                    "gunesli_shared",
-                    "gunesli_data"
-                ) else "girllaying.json"
-                yagmur_animasyon = if (getDataFromSharedPref(
-                        this,
-                        "yagmurlu_shared",
-                        "yagmurlu_data"
-                    ) != "empty"
-                ) getDataFromSharedPref(
-                    this,
-                    "yagmurlu_shared",
-                    "yagmurlu_data"
-                ) else "yagmurkadin2.json"
-                bulutlu_animasyon = if (getDataFromSharedPref(
-                        this,
-                        "bulutlu_shared",
-                        "bulutlu_data"
-                    ) != "empty"
-                ) getDataFromSharedPref(
-                    this,
-                    "bulutlu_shared",
-                    "bulutlu_data"
-                ) else "gokkusagi.json"
-                /**/
+                gun_animasyon = getGunAnimasyon(this)
+                yagmur_animasyon = getRainAnimation(this)
+                bulutlu_animasyon = getCloudyAnimation(this)
                 animationCheck = true
             }
-            val switch_value = getDataFromSharedPref(this, "switch_detay", "switch_detay")
-            switch_Detay = if (switch_value == "1" || switch_value == "0") switch_value else "0"
-
-            val rv = binding.saatlik2
-
-            if (rv != null) {
-                if (!isRvAttached || switch_Detay_previous != switch_Detay) {
-                    switch_Detay_previous = switch_Detay
-                    if (switch_Detay == "0") {
-                        RV_set_up_hourly(Adapter_hourly1, list)
-                        val tema_renk = getColorFromSharedPref(this)
-                        if (tema_renk != null) {
-                            Adapter_hourly1.backGUpdate(tema_renk)
-                        }
-                    } else {
-                        RV_set_up_hourly_detailed(Adapter_hourly_detailed, list)
-                        val tema_renk = getColorFromSharedPref(this)
-                        if (tema_renk != null) {
-                            Adapter_hourly_detailed.backGUpdate(tema_renk)
-                        }
-                    }
-                    isRvAttached = true
-                    switch_Detay_previous = switch_Detay
-                }
-            }
-
-
-            if (!is_forecast_adapter_att) {
-                val rv = binding.forecast
-                val list = convertHourlyToListForecast(weatherData)
-                AdapterForecast.submitList(list)
-                val layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-                rv.adapter = AdapterForecast
-                rv.layoutManager = layoutManager
-                getColorFromSharedPref(this)?.let { AdapterForecast.backGUpdate(it) }
-                is_forecast_adapter_att = true
-            }
-
 
             binding.derece.text = "${weatherData.current.temperature_2m.toInt()}°"
-            binding.hissedilen.text =
-                "Hissedilen Sıcaklık : ${weatherData.current.apparent_temperature.toInt()}°"
+            binding.hissedilen.text = ContextCompat.getString(this, R.string.hisSicaklik) +
+                ": ${weatherData.current.apparent_temperature.toInt()}°"
             binding.nem.text =
                 "${weatherData.current.relative_humidity_2m}${weatherData.current_units.relative_humidity_2m}"
             binding.ruzgarHizi.text =
                 "${weatherData.current.wind_speed_10m} ${weatherData.current_units.wind_speed_10m}"
-            binding.ruzgarYonu.text =
-                "${weatherData.current.wind_direction_10m}${weatherData.current_units.wind_direction_10m}"
+
+            binding.ruzgarYonu.text = "${getWindDirectionSimple(this, weatherData.current.wind_direction_10m)}"
+
             binding.bulutluluk.text =
                 "${weatherData.current.cloud_cover}${weatherData.current_units.cloud_cover}"
             binding.saganak.text =
@@ -408,8 +356,10 @@ class MainActivity : AppCompatActivity() {
                 "${weatherData.current.snowfall} ${weatherData.current_units.snowfall}"
             binding.basinc.text =
                 "${weatherData.current.surface_pressure} ${weatherData.current_units.surface_pressure}"
+            binding.uv.text = "${weatherData.hourly.uv_index[1]} (${getUvRiskLevel(weatherData.hourly.uv_index[1].toDouble(), this)})"
 
             val previous_state = currentState
+            gun_animasyon =  getGunAnimasyon(this)
             currentState = updateState(weatherData)
 
             val mainAnimation = binding.gun
@@ -449,6 +399,8 @@ class MainActivity : AppCompatActivity() {
             startTour()
         }
 
+        updateRVs(weatherData)
+
         lifecycleScope.launch(Dispatchers.IO) {
 
             val entries = list.mapIndexedNotNull { int, list1 ->
@@ -485,53 +437,52 @@ class MainActivity : AppCompatActivity() {
             val gunlukTempChartEntry = GunlukTempChartEntry(entries, entriesApp)
             val detayChartInfo = DetayChartInfo(entriesWind, entriesHum)
             val dataSets = GunlukDataSet(
-                LineDataSet(entries, "Sıcaklık (°C)").apply {
+                LineDataSet(entries, ContextCompat.getString(this@MainActivity, R.string.temperature) + " (°C)").apply {
                 fillAlpha = alpha
                 color =
-                    Color.parseColor(getColorFromSharedPref(this@MainActivity) ?: "#aa000000")
+                    Color.parseColor(returnTheCurrentColor(this@MainActivity))
                 lineWidth = 2f
                 mode = LineDataSet.Mode.CUBIC_BEZIER
                 setDrawCircles(false)
                 valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                valueTextColor = Color.parseColor("#aa000000")
+                valueTextColor = ContextCompat.getColor(this@MainActivity, R.color.textSiyah)
                 valueFormatter = valueformatter
                 valueTextSize = 12f
                 },
-                LineDataSet(entriesApp, "Hissedilen Sıcaklık (°C)").apply {
+                LineDataSet(entriesApp, ContextCompat.getString(this@MainActivity, R.string.feels_like) + " (°C)").apply {
                     setDrawValues(false)
                     fillAlpha = alpha
-                    color = Color.parseColor("#6ec29a")
+                    color = ContextCompat.getColor(this@MainActivity, R.color.barAndHumdColors)
                     lineWidth = 2f
                     mode = LineDataSet.Mode.CUBIC_BEZIER
                     setDrawCircles(false)
                     valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                    valueTextColor = Color.parseColor("#aa000000")
+                    valueTextColor = ContextCompat.getColor(this@MainActivity, R.color.textSiyah)
                     valueFormatter = valueformatter
                     valueTextSize = 12f
                 },
-                LineDataSet(entriesHum, "Nem (%)").apply {
+                LineDataSet(entriesHum, ContextCompat.getString(this@MainActivity, R.string.humidity) + " (%)").apply {
                     fillAlpha = alpha
                     valueTextSize = 12f
-                    color = Color.parseColor("#6ec29a")
+                    color = ContextCompat.getColor(this@MainActivity, R.color.barAndHumdColors)
                     lineWidth = 2f
                     mode = LineDataSet.Mode.CUBIC_BEZIER
                     setDrawCircles(false)
                     valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                    valueTextColor = Color.parseColor("#aa000000")
+                    valueTextColor = ContextCompat.getColor(this@MainActivity, R.color.textSiyah)
                     valueFormatter = valueformatterHum
                     isHighlightEnabled = false
                 },
-                BarDataSet(entriesWind, "Rüzgar Hızı (km/h)").apply {
-
+                BarDataSet(entriesWind,  ContextCompat.getString(this@MainActivity, R.string.ruzgar_hizi) + " (km/h)").apply {
                     valueTextSize = 12f
-                    color = Color.parseColor("#6ec29a")
+                    color = ContextCompat.getColor(this@MainActivity, R.color.barAndHumdColors)
                     valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                    valueTextColor = Color.parseColor("#aa000000")
+                    valueTextColor = ContextCompat.getColor(this@MainActivity, R.color.textSiyah)
                     isHighlightEnabled = false
                 }
                 )
 
-            val listForForecastChart = convertHourlyToListForecastChart(weatherData)
+            val listForForecastChart = convertHourlyToListForecastChart(weatherData, this@MainActivity)
 
             val rainIcon = ContextCompat.getDrawable(this@MainActivity, R.drawable.rain)
             val sunIcon = ContextCompat.getDrawable(this@MainActivity, R.drawable.sun_74)
@@ -564,42 +515,42 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            val dataMax = LineDataSet(entriesMax, "Sıcaklık Max (°C)").apply {
-                valueTextSize = 12f
+            val dataMax = LineDataSet(entriesMax, ContextCompat.getString(this@MainActivity, R.string.maxSicaklik) + " (°C)").apply {
+                valueTextSize = 16f
                 isHighlightEnabled = false
                 setDrawCircles(true)
                 setCircleColors(
                     Color.parseColor(
-                        getColorFromSharedPref(this@MainActivity) ?: "#aa000000"
+                        returnTheCurrentColor(this@MainActivity)
                     )
                 )
                 lineWidth = 2f
                 circleSize = 4f
-                valueTextColor = Color.parseColor("#aa000000")
+                valueTextColor = ContextCompat.getColor(this@MainActivity, R.color.textSiyah)
                 valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
                 color =
-                    Color.parseColor(getColorFromSharedPref(this@MainActivity) ?: "#aa000000")
+                    Color.parseColor(returnTheCurrentColor(this@MainActivity))
                 valueFormatter = valueFormatter1
             }
 
-            val dataMin = LineDataSet(entriesMin, "Sıcaklık Min (°C)").apply {
-                valueTextSize = 12f
+            val dataMin = LineDataSet(entriesMin, ContextCompat.getString(this@MainActivity, R.string.minSicaklik) + " (°C)").apply {
+                valueTextSize = 16f
                 isHighlightEnabled = false
                 setDrawCircles(true)
                 setCircleColors(Color.parseColor("#aa000000"))
                 lineWidth = 2f
                 circleSize = 4f
-                valueTextColor = Color.parseColor("#aa000000")
+                valueTextColor = ContextCompat.getColor(this@MainActivity, R.color.textSiyah)
                 valueTypeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                color = Color.parseColor("#77000000")
+                color = ContextCompat.getColor(this@MainActivity, R.color.subSiyahText)
                 valueFormatter = valueFormatter1
             }
 
             val dataSun = LineDataSet(entriesSun, "").apply {
+                color = ContextCompat.getColor(this@MainActivity, R.color.arkaplanGenel)
                 setDrawValues(false)
                 setDrawCircles(false)
                 setDrawFilled(false)
-                color = Color.parseColor("#ffffff")
                 setDrawIcons(true)
             }
 
@@ -612,6 +563,66 @@ class MainActivity : AppCompatActivity() {
         }
 
         return 0
+
+    }
+
+    fun updateRVs(weatherData: WeatherResponse){
+        val list = convertHourlyToList(weatherData)
+        val switch_value = getDataFromSharedPref(this, "switch_detay", "switch_detay")
+        switch_Detay = if (switch_value == "1" || switch_value == "0") switch_value else "0"
+
+        val rv = binding.saatlik2
+
+        if (rv != null) {
+            if (!isRvAttached || switch_Detay_previous != switch_Detay) {
+                switch_Detay_previous = switch_Detay
+                if (switch_Detay == "0") {
+                    RV_set_up_hourly(Adapter_hourly1, list)
+                    val tema_renk = returnTheCurrentColor(this)
+                    if (tema_renk != null) {
+                        Adapter_hourly1.backGUpdate(tema_renk)
+                    }
+                } else {
+                    RV_set_up_hourly_detailed(Adapter_hourly_detailed, list)
+                    val tema_renk = returnTheCurrentColor(this)
+                    if (tema_renk != null) {
+                        Adapter_hourly_detailed.backGUpdate(tema_renk)
+                    }
+                }
+                isRvAttached = true
+                switch_Detay_previous = switch_Detay
+            }
+        }
+
+
+        if (!is_forecast_adapter_att) {
+            val rv = binding.forecast
+            val list = convertHourlyToListForecast(weatherData, this)
+            AdapterForecast.submitList(list)
+            val layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+            rv.adapter = AdapterForecast
+            rv.layoutManager = layoutManager
+            returnTheCurrentColor(this)?.let { AdapterForecast.backGUpdate(it) }
+            is_forecast_adapter_att = true
+        }
+
+        val currentColorForCards = returnTheCurrentColor(this@MainActivity)
+
+        pickedFont = getDataFromSharedPref(this, "selected_font", "selected_font")
+        if(pickedFont != previousFont){
+            Adapter_hourly1.fontUpdate(pickedFont)
+            Adapter_hourly_detailed.fontUpdate(pickedFont)
+            AdapterForecast.fontUpdate(pickedFont)
+            previousFont = pickedFont
+        }
+
+        Adapter_hourly1.backGUpdate(currentColorForCards)
+        Adapter_hourly_detailed.backGUpdate(currentColorForCards)
+        AdapterForecast.backGUpdate(currentColorForCards)
+
+        Adapter_hourly1.notifyDataSetChanged()
+        Adapter_hourly_detailed.notifyDataSetChanged()
+        AdapterForecast.notifyDataSetChanged()
 
     }
 
@@ -649,7 +660,8 @@ class MainActivity : AppCompatActivity() {
                 combinedBarData.barWidth = 0.4f
 
                 chartBar.xAxis.apply {
-                    axisLineColor = Color.parseColor(getColorFromSharedPref(this@MainActivity))
+                    textColor = ContextCompat.getColor(this@MainActivity, R.color.textSiyah)
+                    axisLineColor = Color.parseColor(returnTheCurrentColor(this@MainActivity))
                     axisLineWidth = 2f
                     textSize = 10f
                     typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
@@ -660,10 +672,11 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 chartBar.axisLeft.apply {
-                    /*setDrawAxisLine(true)
+                    textColor = ContextCompat.getColor(this@MainActivity, R.color.textSiyah)
+                    setDrawAxisLine(true)
                     axisLineWidth = 2f
                     textSize = 10f
-                    typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)*/
+                    typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
                     //granularity = 2f
                 }
 
@@ -672,7 +685,8 @@ class MainActivity : AppCompatActivity() {
                 chartBar.xAxis.setDrawGridLines(false)
 
                 chartHum.xAxis.apply {
-                    axisLineColor = Color.parseColor(getColorFromSharedPref(this@MainActivity))
+                    textColor = ContextCompat.getColor(this@MainActivity, R.color.textSiyah)
+                    axisLineColor = Color.parseColor(returnTheCurrentColor(this@MainActivity))
                     axisLineWidth = 2f
                     textSize = 10f
                     typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
@@ -683,7 +697,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 chartHum.axisLeft.apply {
-
+                    textColor = ContextCompat.getColor(this@MainActivity, R.color.textSiyah)
                     setDrawAxisLine(true)
                     axisLineWidth = 2f
                     textSize = 10f
@@ -738,8 +752,9 @@ class MainActivity : AppCompatActivity() {
             }
 
             chart.xAxis.apply {
+                textColor = ContextCompat.getColor(this@MainActivity, R.color.textSiyah)
                 setDrawGridLines(false)
-                axisLineColor = Color.parseColor(getColorFromSharedPref(this@MainActivity))
+                axisLineColor = Color.parseColor(returnTheCurrentColor(this@MainActivity))
                 axisLineWidth = 2f
                 textSize = 10f
                 typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
@@ -752,6 +767,7 @@ class MainActivity : AppCompatActivity() {
             chart.description.isEnabled = false
 
             chart.axisLeft.apply {
+                textColor = ContextCompat.getColor(this@MainActivity, R.color.textSiyah)
                 axisLineWidth = 2f
                 textSize = 10f
                 setDrawGridLines(false)
@@ -761,12 +777,12 @@ class MainActivity : AppCompatActivity() {
             }
 
             chart.legend.apply {
+                textColor = ContextCompat.getColor(this@MainActivity, R.color.textSiyah)
                 isEnabled = true
                 form = Legend.LegendForm.CIRCLE
                 formSize = 10f
                 textSize = 12f
                 typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                textColor = Color.parseColor("#aa000000")
                 verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
                 horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
                 orientation = Legend.LegendOrientation.HORIZONTAL
@@ -774,12 +790,12 @@ class MainActivity : AppCompatActivity() {
             }
 
             chartHum.legend.apply {
+                textColor = ContextCompat.getColor(this@MainActivity, R.color.textSiyah)
                 isEnabled = true
                 form = Legend.LegendForm.CIRCLE
                 formSize = 10f
                 textSize = 12f
                 typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                textColor = Color.parseColor("#aa000000")
                 verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
                 horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
                 orientation = Legend.LegendOrientation.HORIZONTAL
@@ -787,12 +803,12 @@ class MainActivity : AppCompatActivity() {
             }
 
             chartBar.legend.apply {
+                textColor = ContextCompat.getColor(this@MainActivity, R.color.textSiyah)
                 isEnabled = true
                 form = Legend.LegendForm.CIRCLE
                 formSize = 10f
                 textSize = 12f
                 typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                textColor = Color.parseColor("#aa000000")
                 verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
                 horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
                 orientation = Legend.LegendOrientation.HORIZONTAL
@@ -831,7 +847,7 @@ class MainActivity : AppCompatActivity() {
 
         if (chartForec != null) {
 
-            val days = convertHourlyToListForecastChart(weatherData).map { it.time.substringAfter(",").trim() }
+            val days = convertHourlyToListForecastChart(weatherData, this@MainActivity).map { it.time.substringAfter(",").trim() }
 
             val entriesMax = haftalikEntry.tempMax
             val dataMin = haftalikDataSet.tempMin
@@ -845,7 +861,7 @@ class MainActivity : AppCompatActivity() {
                 formSize = 10f
                 textSize = 12f
                 typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
-                textColor = Color.parseColor("#aa000000")
+                textColor = ContextCompat.getColor(this@MainActivity, R.color.textSiyah)
                 verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
                 horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
                 orientation = Legend.LegendOrientation.HORIZONTAL
@@ -853,13 +869,14 @@ class MainActivity : AppCompatActivity() {
             }
 
             chartForec.xAxis.apply {
+                textColor = ContextCompat.getColor(this@MainActivity, R.color.textSiyah)
                 valueFormatter = IndexAxisValueFormatter(days)
                 typeface = ResourcesCompat.getFont(this@MainActivity, R.font.nb)
                 setDrawGridLines(false)
                 textSize = 12f
             }
 
-            chartForec.setExtraOffsets(30f, 0f, 0f, 10f)
+            chartForec.setExtraOffsets(20f, 0f, 0f, 10f)
             chartForec.isHighlightPerTapEnabled = false
 
             chartForec.axisLeft.apply {
@@ -870,7 +887,7 @@ class MainActivity : AppCompatActivity() {
             chartForec.setScaleEnabled(false)
             chartForec.setDragEnabled(true)
             chartForec.setVisibleXRangeMaximum(3f)
-            chartForec.moveViewToX(0f)
+            chartForec.moveViewToX(-2f)
             chartForec.axisLeft.setDrawGridLines(false)
             chartForec.xAxis.apply {
                 setDrawGridLines(false)
@@ -927,6 +944,7 @@ class MainActivity : AppCompatActivity() {
                 override fun onLocationReceived(latitude: Double, longitude: Double) {
                     uiFlag = false
                     fetchWeatherData(latitude, longitude)
+
                 }
             })
         }
@@ -1104,50 +1122,34 @@ class MainActivity : AppCompatActivity() {
 
         if (requestCode == 1001 && resultCode == Activity.RESULT_OK) {
             val mainAnimation = binding.gun
-            val selectedColor = getColorFromSharedPref(this) ?: "#7c6fde"
-
-            var selected_bulutlu = getDataFromSharedPref(this, "bulutlu_selected", "bulutlu_data")
-            if(selected_bulutlu == "empty"){
-                selected_bulutlu = "gokkusagi.json"
-            }
-
-            var selected_yagmurlu = getDataFromSharedPref(this, "yagmurlu_selected", "yagmurlu_data")
-            if(selected_bulutlu == "empty"){
-                selected_bulutlu = "yagmurkadin.json"
-            }
 
             var selected_font = getDataFromSharedPref(this, "selected_font", "selected_font")
             if(selected_font == "empty"){
                 selected_font = "annie"
             }
+
             val ayar = data?.getStringExtra("ayar")
 
             ayar?.let{
+
                 uiFlag = false
 
-                val weatherResponse = viewModel.weatherResponse
-                if(weatherResponse != null){
-                    updateUI(weatherResponse)
-                }
-                else{
-                    val loc = getLocFromSharedPref(this)
-                    if(loc != null){
-                        fetchWeatherData(loc.first, loc.second)
-                    }
-                }
+                binding.gun.visibility = View.VISIBLE
 
-                var selected_gunesli = getDataFromSharedPref(this, "gunesli_shared", "gunesli_data")
-                if(selected_gunesli == "empty"){
-                    selected_gunesli = "girllaying.json"
-                }
+                var selected_gunesli = getGunAnimasyon(this)
+                var selected_bulutlu = getCloudyAnimation(this)
+                var selected_yagmurlu = getRainAnimation(this)
 
-                if(currentState != selected_gunesli && currentState == gun_animasyon) {
-                    saveDataToSharedPRef(this, "gunesli_shared", "gunesli_data", selected_gunesli)
+                if(currentState == gun_animasyon && anFlag != true) {
+                    Log.e("kontrol2", "selgun $selected_gunesli")
                     val factor = 3f
                     val polator = OvershootInterpolator(factor)
-                    if (currentState == gun_animasyon) {
+                    Log.e("kontrol2", "curr $currentState")
+                    if (currentState != selected_gunesli) {
                         gun_animasyon = selected_gunesli
+                        Log.e("kontrol3", "gunan $gun_animasyon")
                         currentState = gun_animasyon
+                        Log.e("kontrol4", "gunan $currentState")
                         mainAnimation.animate().translationX(-mainAnimation.width.toFloat())
                             .setDuration(600).setInterpolator(polator).withEndAction {
                                 mainAnimation.setAnimation(selected_gunesli)
@@ -1162,6 +1164,7 @@ class MainActivity : AppCompatActivity() {
                             }.start()
                     }
                 }
+
 
                 if(yagmur_animasyon != selected_yagmurlu && currentState == yagmur_animasyon){
                     saveDataToSharedPRef(this, "yagmurlu_shared", "yagmurlu_data", selected_yagmurlu)
@@ -1204,18 +1207,26 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
 
+                pickedFont = getDataFromSharedPref(this, "selected_font", "selected_font")
+                if(pickedFont != previousFont){
+                    Adapter_hourly1.fontUpdate(pickedFont)
+                    Adapter_hourly_detailed.fontUpdate(pickedFont)
+                    AdapterForecast.fontUpdate(pickedFont)
+                    previousFont = pickedFont
+                }
 
-                AdapterForecast.fontUpdate(selected_font)
-                Adapter_hourly1.fontUpdate(selected_font)
-                Adapter_hourly_detailed.fontUpdate(selected_font)
-
-                Adapter_hourly1.backGUpdate(selectedColor)
-                Adapter_hourly_detailed.backGUpdate(selectedColor)
-                AdapterForecast.backGUpdate(selectedColor)
-                saveColorToSharedPref(this, selectedColor)
+                val weatherResponse = viewModel.weatherResponse
+                if(weatherResponse != null){
+                    updateUI(weatherResponse)
+                }
+                else{
+                    val loc = getLocFromSharedPref(this)
+                    if(loc != null){
+                        fetchWeatherData(loc.first, loc.second)
+                    }
+                }
 
             }
-
 
         }
 
