@@ -36,7 +36,7 @@ A customizable Android weather application built with **Kotlin**, providing real
 
 - **Kotlin**
 - **MPAndroidChart** – for visualizing weather data
-- **ViewModel** and **LiveData**
+- **MVVM**
 - **OpenWeatherMap API** 
 - **Custom Fonts & Themes**
 - **Location Services (GPS)**
